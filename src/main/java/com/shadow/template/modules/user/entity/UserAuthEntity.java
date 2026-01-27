@@ -18,10 +18,10 @@ public class UserAuthEntity {
   private Long id;
   private String email;
   private UserStatusEnum status;
-  
-  private String password_hash;
-  @TableField(fill = FieldFill.INSERT)
-  private LocalDateTime create_time;
-  @TableField(fill = FieldFill.INSERT_UPDATE)
-  private LocalDateTime update_time;
+  @TableField(value = "password_hash")
+  private String passwordHash;
+  @TableField(fill = FieldFill.INSERT, value = "create_time")
+  private LocalDateTime createTime;
+  @TableField(fill = FieldFill.INSERT_UPDATE, value = "update_time")
+  private LocalDateTime updateTime;
 }

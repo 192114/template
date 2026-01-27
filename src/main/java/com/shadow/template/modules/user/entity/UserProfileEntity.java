@@ -20,18 +20,17 @@ import lombok.Data;
 @TableName("user_profile")
 @Data
 public class UserProfileEntity {
-  @TableId(type = IdType.INPUT)
-  private Long user_id;
-  @Length(max = 50, message = "昵称太长了")
+  @TableId(type = IdType.INPUT, value = "user_id")
+  private Long userId;
   private String nickname;
-  private String avatar_url;
+  @TableField(value = "avatar_url")
+  private String avatarUrl;
   private GenderEnum gender;
   private LocalDate birthday;
-  @Length(max = 1000, message = "简介不能超过1000字符")
   private String bio;
 
-  @TableField(fill = FieldFill.INSERT)
-  private LocalDateTime create_time;
-  @TableField(fill = FieldFill.INSERT_UPDATE)
-  private LocalDateTime update_time;
+  @TableField(fill = FieldFill.INSERT, value = "create_time")
+  private LocalDateTime createTime;
+  @TableField(fill = FieldFill.INSERT_UPDATE, value = "update_time")
+  private LocalDateTime updateTime;
 }

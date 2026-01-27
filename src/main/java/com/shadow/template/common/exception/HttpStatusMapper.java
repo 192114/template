@@ -1,0 +1,27 @@
+package com.shadow.template.common.exception;
+
+import com.shadow.template.common.result.ResultCode;
+import org.springframework.http.HttpStatus;
+
+public final class HttpStatusMapper {
+  private HttpStatusMapper() {
+  }
+
+  public static HttpStatus fromResultCode(ResultCode code) {
+    return switch (code) {
+      // 成功
+      case SUNCCESS -> HttpStatus.OK;
+
+      // 通用错误
+      case PARAM_ERROR -> HttpStatus.BAD_REQUEST;
+      case NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+      case FORBIDDEN -> HttpStatus.FORBIDDEN;
+      case SYSTEM_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+
+      // 业务错误
+      case USER_EMAIL_EXISTS -> HttpStatus.CONFLICT;
+      case EMAIL_SEND_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
+    };
+  }
+}
