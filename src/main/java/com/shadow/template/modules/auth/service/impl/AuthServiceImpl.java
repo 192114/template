@@ -2,7 +2,6 @@ package com.shadow.template.modules.auth.service.impl;
 
 import org.springframework.stereotype.Service;
 
-import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.vo.LoginResponseVo;

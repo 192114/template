@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
-import com.shadow.template.modules.auth.service.MailService;
+import com.shadow.template.modules.auth.service.EmailService;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
-public class MailServiceImpl implements MailService {
+public class EmailServiceImpl implements EmailService {
   @Autowired
   private JavaMailSender javaMailSender;
 
@@ -77,7 +77,7 @@ public class MailServiceImpl implements MailService {
 
       String htmlContent = buildHtmlContent(mailCode);
 
-      helper.setText(htmlContent);
+      helper.setText(htmlContent, true);
 
       javaMailSender.send(message);
     } catch (MessagingException e) {

@@ -5,13 +5,15 @@ import lombok.Getter;
 @Getter
 public enum ResultCode {
   // 成功
-  SUNCCESS(0, "成功"),
+  SUCCESS(0, "成功"),
 
   // 通用错误码
   PARAM_ERROR(1000, "参数错误"),
   NOT_FOUND(1001, "资源不存在"),
   UNAUTHORIZED(1002, "未登录或无权限"),
   FORBIDDEN(1003, "禁止访问"),
+  TOKEN_EXPIRED(1004, "登录已过期"),
+  TOKEN_INVALID(1005, "令牌无效"),
   SYSTEM_ERROR(9999, "系统异常"),
 
   // 业务错误码（示例）

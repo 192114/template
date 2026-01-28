@@ -8,32 +8,29 @@ import com.shadow.template.common.result.Result;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.service.AuthService;
-import com.shadow.template.modules.auth.service.MailService;
-import com.shadow.template.modules.auth.vo.SendMailVo;
+import com.shadow.template.modules.auth.service.EmailService;
+import com.shadow.template.modules.auth.vo.SendEmailVo;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
   @Autowired
   private AuthService authService;
 
   @Autowired
-  private MailService mailService;
+  private EmailService mailService;
 
-  @GetMapping("/mail")
-  public Result<SendMailVo> send(@RequestParam SendEmailDto sendEmailDto) {
+  @PostMapping("/email")
+  public Result<SendEmailVo> send(@RequestBody SendEmailDto sendEmailDto) {
     mailService.sendEmail(sendEmailDto.getEmail(), "111111");
-    SendMailVo sendMailVo = new SendMailVo();
-    sendMailVo.setCode("111111");
+    SendEmailVo sendEmailVo = new SendEmailVo();
+    sendEmailVo.setCode("111111");
 
-    return Result.succuess(sendMailVo);
+    return Result.succuess(sendEmailVo);
   }
   
 

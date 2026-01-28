@@ -3,6 +3,6 @@ package com.shadow.template.modules.auth.vo;
 import lombok.Data;
 
 @Data
-public class SendMailVo {
+public class SendEmailVo {
   private String code;
 }

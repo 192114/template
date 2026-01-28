@@ -10,12 +10,12 @@ public final class HttpStatusMapper {
   public static HttpStatus fromResultCode(ResultCode code) {
     return switch (code) {
       // 成功
-      case SUNCCESS -> HttpStatus.OK;
+      case SUCCESS -> HttpStatus.OK;
 
       // 通用错误
       case PARAM_ERROR -> HttpStatus.BAD_REQUEST;
       case NOT_FOUND -> HttpStatus.NOT_FOUND;
-      case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+      case UNAUTHORIZED, TOKEN_EXPIRED, TOKEN_INVALID -> HttpStatus.UNAUTHORIZED;
       case FORBIDDEN -> HttpStatus.FORBIDDEN;
       case SYSTEM_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
 

@@ -13,7 +13,7 @@ public class Result<T> {
   private T data;
 
   public static <T> Result<T> succuess(T data) {
-    return new Result<>(ResultCode.SUNCCESS.getCode(), ResultCode.SUNCCESS.getMessage(), data);
+    return new Result<>(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMessage(), data);
   }
 
   public static Result<Void> succuess() {
