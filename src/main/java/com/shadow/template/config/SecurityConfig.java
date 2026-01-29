@@ -24,11 +24,6 @@ import com.shadow.template.security.JwtAuthenticationFilter;
 import com.shadow.template.security.RestAccessDeniedHandler;
 import com.shadow.template.security.RestAuthenticationEntryPoint;
 
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 @Configuration
 public class SecurityConfig {
 
@@ -50,21 +45,6 @@ public class SecurityConfig {
   @Bean
   PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-    UserDetails dummy = User.withUsername("dummy")
-        .password(passwordEncoder.encode("dummy"))
-        .roles("USER")
-        .build();
-
-    return username -> {
-      if ("dummy".equals(username)) {
-        return dummy;
-      }
-      throw new UsernameNotFoundException("User not found");
-    };
   }
 
   @Bean

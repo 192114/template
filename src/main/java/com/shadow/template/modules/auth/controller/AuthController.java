@@ -14,6 +14,7 @@ import com.shadow.template.modules.auth.vo.SendEmailVo;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,7 +26,7 @@ public class AuthController {
   private EmailService mailService;
 
   @PostMapping("/email")
-  public Result<SendEmailVo> send(@RequestBody SendEmailDto sendEmailDto) {
+  public Result<SendEmailVo> send(@RequestBody @Valid SendEmailDto sendEmailDto) {
     mailService.sendEmail(sendEmailDto.getEmail(), "111111");
     SendEmailVo sendEmailVo = new SendEmailVo();
     sendEmailVo.setCode("111111");
@@ -35,7 +36,7 @@ public class AuthController {
   
 
   @PostMapping("/register")
-  public Result<Void> register(@RequestBody UserRegisterDto userRegisterDto) {
+  public Result<Void> register(@RequestBody @Valid UserRegisterDto userRegisterDto) {
     authService.register(userRegisterDto);
     return Result.succuess();
   }

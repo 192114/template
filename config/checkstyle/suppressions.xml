@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+  "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+  "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+  <!-- 生成代码 -->
+  <suppress files=".*[\\/]generated[\\/].*"/>
+
+  <!-- DTO/VO/Entity: 放宽字段可见性 + Javadoc -->
+  <suppress files=".*[\\/]dto[\\/].*" checks="VisibilityModifier|JavadocType|JavadocMethod"/>
+  <suppress files=".*[\\/]vo[\\/].*" checks="VisibilityModifier|JavadocType|JavadocMethod"/>
+  <suppress files=".*[\\/]entity[\\/].*" checks="VisibilityModifier|JavadocType|JavadocMethod"/>
+
+  <!-- Mapper: 允许命名缩写和无Javadoc -->
+  <suppress files=".*[\\/]mapper[\\/].*" checks="AbbreviationAsWordInName|JavadocMethod|JavadocType"/>
+
+  <!-- Controller: 放宽参数数量和魔法数字 -->
+  <suppress files=".*[\\/]controller[\\/].*" checks="ParameterNumber|MagicNumber"/>
+
+  <!-- Config/Security: 放宽复杂度 -->
+  <suppress files=".*[\\/](config|security)[\\/].*" checks="ClassFanOutComplexity|CyclomaticComplexity"/>
+</suppressions>

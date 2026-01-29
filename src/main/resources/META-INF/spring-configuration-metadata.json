@@ -1,0 +1,10 @@
+{
+  "groups": [
+    {
+      "name": "app",
+      "type": "com.shadow.template.config.AppProperties",
+      "sourceType": "com.shadow.template.config.AppProperties",
+      "description": "Application custom properties."
+    }
+  ]
+}

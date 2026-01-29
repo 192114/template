@@ -1,0 +1,25 @@
+<FindBugsFilter>
+  <!-- DTO/VO/Entity: 主要数据承载，易触发误报 -->
+  <Match>
+    <Or>
+      <Package name="~.*\.dto\..*"/>
+      <Package name="~.*\.vo\..*"/>
+      <Package name="~.*\.entity\..*"/>
+    </Or>
+  </Match>
+
+  <!-- Mapper: 接口映射易产生误报 -->
+  <Match>
+    <Package name="~.*\.mapper\..*"/>
+  </Match>
+
+  <!-- Config: 配置类常见误报 -->
+  <Match>
+    <Package name="~.*\.config\..*"/>
+  </Match>
+
+  <!-- 生成代码 -->
+  <Match>
+    <Source name="~.*/generated/.*"/>
+  </Match>
+</FindBugsFilter>

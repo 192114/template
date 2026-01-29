@@ -8,8 +8,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.validator.constraints.Length;
-
 import java.time.LocalDate;
 
 import com.baomidou.mybatisplus.annotation.IdType;
