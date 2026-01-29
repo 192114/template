@@ -3,6 +3,9 @@ package com.shadow.template.config;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.nio.charset.StandardCharsets;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +36,8 @@ public class AppProperties {
     this.security = security;
   }
 
+  @Getter
+  @Setter
   public static class Jwt {
     @NotBlank
     private String secret;
@@ -58,14 +63,31 @@ public class AppProperties {
         throw new IllegalStateException("JWT refresh secret 长度至少 32 bytes");
       }
     }
-
-    // getters/setters
   }
 
+  @Getter
+  @Setter
   public static class Security {
     @NotBlank
     private String permitAll;
 
-    // getters/setters
+    @Valid
+    private Cors cors = new Cors();
+    
+    @Getter
+    @Setter
+    public static class Cors {
+      @NotBlank
+      private String allowedOrigins;
+
+      @NotBlank
+      private String allowedMethods;
+
+      @NotBlank
+      private String allowedHeaders;
+
+      @NotNull
+      private Boolean allowCredentials;
+    }
   }
 }
