@@ -18,7 +18,9 @@ public enum ResultCode {
 
   // 业务错误码（示例）
   USER_EMAIL_EXISTS(2001, "邮箱已存在"),
-  EMAIL_SEND_FAILED(2002, "邮件发送失败");
+  EMAIL_SEND_FAILED(2002, "邮件发送失败"),
+  EMAIL_CODE_EXPIRED(2003, "邮箱验证码不存在或已过期"),
+  EMAIL_CODE_INCORRECT(2004, "邮箱验证码不正确");
 
   private final int code;
   private final String message;

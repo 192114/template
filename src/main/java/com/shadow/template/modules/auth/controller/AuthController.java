@@ -10,7 +10,6 @@ import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.enums.EmailUsage;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.EmailService;
-import com.shadow.template.modules.auth.vo.SendEmailVo;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,14 +26,11 @@ public class AuthController {
   private EmailService mailService;
 
   @PostMapping("/email")
-  public Result<SendEmailVo> send(@RequestBody @Valid SendEmailDto sendEmailDto) {
+  public Result<Void> send(@RequestBody @Valid SendEmailDto sendEmailDto) {
     final EmailUsage usage = EmailUsage.fromCode(sendEmailDto.getUsage());
-    final String emailCode = mailService.sendEmail(sendEmailDto.getEmail(), usage);
-    SendEmailVo sendEmailVo = new SendEmailVo();
+    mailService.sendEmail(sendEmailDto.getEmail(), usage);
 
-    sendEmailVo.setCode(emailCode);
-
-    return Result.succuess(sendEmailVo);
+    return Result.succuess();
   }
 
   @PostMapping("/register")

@@ -128,7 +128,6 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
-			<version>11.14.1</version>
 		</dependency>
 	</dependencies>
 
@@ -226,5 +225,47 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+
+		<!-- macOS Apple Silicon (M1 / M2 / M3) -->
+		<profile>
+			<id>mac-aarch64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-resolver-dns-native-macos</artifactId>
+					<classifier>osx-aarch_64</classifier>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<!-- macOS Intel -->
+		<profile>
+			<id>mac-x86_64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-resolver-dns-native-macos</artifactId>
+					<classifier>osx-x86_64</classifier>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+
+	</profiles>
 
 </project>

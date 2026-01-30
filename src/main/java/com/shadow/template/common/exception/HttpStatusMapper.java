@@ -22,6 +22,8 @@ public final class HttpStatusMapper {
       // 业务错误
       case USER_EMAIL_EXISTS -> HttpStatus.CONFLICT;
       case EMAIL_SEND_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
+      case EMAIL_CODE_EXPIRED -> HttpStatus.BAD_REQUEST;
+      case EMAIL_CODE_INCORRECT -> HttpStatus.BAD_REQUEST;
     };
   }
 }

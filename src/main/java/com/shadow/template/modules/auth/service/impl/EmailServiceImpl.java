@@ -108,7 +108,7 @@ public class EmailServiceImpl implements EmailService {
   }
 
   @Override
-  public String sendEmail(String to, EmailUsage usage) {
+  public void sendEmail(String to, EmailUsage usage) {
     try {
       MimeMessage message = javaMailSender.createMimeMessage();
 
@@ -129,8 +129,6 @@ public class EmailServiceImpl implements EmailService {
       javaMailSender.send(message);
 
       stringRedisTemplate.opsForValue().set("code:email:" + usage.name() + ":" + to, emialCode, 5, TimeUnit.MINUTES);
-
-      return emialCode;
     } catch (MessagingException e) {
       throw new BizException(ResultCode.EMAIL_SEND_FAILED);
     }
