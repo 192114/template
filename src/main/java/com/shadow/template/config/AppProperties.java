@@ -12,6 +12,8 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app")
+@Getter
+@Setter
 public class AppProperties {
 
   @Valid
@@ -19,22 +21,6 @@ public class AppProperties {
 
   @Valid
   private Security security = new Security();
-
-  public Jwt getJwt() {
-    return jwt;
-  }
-
-  public void setJwt(Jwt jwt) {
-    this.jwt = jwt;
-  }
-
-  public Security getSecurity() {
-    return security;
-  }
-
-  public void setSecurity(Security security) {
-    this.security = security;
-  }
 
   @Getter
   @Setter

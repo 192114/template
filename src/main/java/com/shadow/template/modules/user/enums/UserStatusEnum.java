@@ -14,8 +14,9 @@ public enum UserStatusEnum {
   @JsonValue
   private final int code;
   private final String desc;
+
   UserStatusEnum(int code, String desc) {
-  this.code = code;
-  this.desc = desc;
+    this.code = code;
+    this.desc = desc;
   }
 }

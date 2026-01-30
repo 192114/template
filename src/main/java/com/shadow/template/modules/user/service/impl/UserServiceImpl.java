@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
-import com.shadow.template.modules.user.dto.UserAuthDto;
+import com.shadow.template.modules.user.dto.UserCreateDto;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.entity.UserProfileEntity;
 import com.shadow.template.modules.user.enums.UserStatusEnum;
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void createUser(UserAuthDto user) {
+  public void createUser(UserCreateDto user) {
     if (isExistByEmail(user.getEmail())) {
       throw new BizException(ResultCode.USER_EMAIL_EXISTS);
     }

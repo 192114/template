@@ -5,8 +5,13 @@ import jakarta.validation.constraints.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Validated
 @ConfigurationProperties(prefix = "spring")
+@Getter
+@Setter
 public class InfraProperties {
 
   @Valid
@@ -15,22 +20,8 @@ public class InfraProperties {
   @Valid
   private Mail mail = new Mail();
 
-  public Datasource getDatasource() {
-    return datasource;
-  }
-
-  public void setDatasource(Datasource datasource) {
-    this.datasource = datasource;
-  }
-
-  public Mail getMail() {
-    return mail;
-  }
-
-  public void setMail(Mail mail) {
-    this.mail = mail;
-  }
-
+  @Getter
+  @Setter
   public static class Datasource {
     @NotBlank
     private String url;
@@ -43,10 +34,10 @@ public class InfraProperties {
 
     @NotBlank
     private String driverClassName;
-
-    // getters/setters
   }
 
+  @Getter
+  @Setter
   public static class Mail {
     @NotBlank
     private String host;
@@ -59,7 +50,5 @@ public class InfraProperties {
 
     @NotBlank
     private String password;
-
-    // getters/setters
   }
 }

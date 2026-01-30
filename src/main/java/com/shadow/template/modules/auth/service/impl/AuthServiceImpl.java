@@ -5,13 +5,13 @@ import org.springframework.stereotype.Service;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.vo.LoginResponseVo;
-import com.shadow.template.modules.user.dto.UserAuthDto;
+import com.shadow.template.modules.user.dto.UserCreateDto;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
   @Override
-  public LoginResponseVo login(UserAuthDto userAuthDto) {
+  public LoginResponseVo login(UserCreateDto userAuthDto) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'login'");
   }

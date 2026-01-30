@@ -30,16 +30,16 @@ public class SecurityConfig {
   @Value("${app.security.permit-all}")
   private String permitAll;
 
-  @Value("${app.cors.allowed-origins}")
+  @Value("${app.security.cors.allowed-origins}")
   private String allowedOrigins;
 
-  @Value("${app.cors.allowed-methods}")
+  @Value("${app.security.cors.allowed-methods}")
   private String allowedMethods;
 
-  @Value("${app.cors.allowed-headers}")
+  @Value("${app.security.cors.allowed-headers}")
   private String allowedHeaders;
 
-  @Value("${app.cors.allow-credentials}")
+  @Value("${app.security.cors.allow-credentials}")
   private boolean allowCredentials;
 
   @Bean

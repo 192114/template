@@ -1,6 +1,6 @@
 package com.shadow.template.modules.user.service;
 
-import com.shadow.template.modules.user.dto.UserAuthDto;
+import com.shadow.template.modules.user.dto.UserCreateDto;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 
 public interface UserService {
@@ -8,7 +8,7 @@ public interface UserService {
 
   UserAuthEntity getUserByEmail(String email);
 
-  void createUser(UserAuthDto user);
+  void createUser(UserCreateDto user);
 
   void disabledUser(Long userId);
 }
