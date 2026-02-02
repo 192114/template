@@ -90,4 +90,12 @@ public class JwtTokenProvider {
     return parseRefreshToken(refreshToken).getPayload().getSubject();
   }
 
+  public long getExpireSeconds() {
+    return expireSeconds;
+  }
+
+  public long getRefreshExpireSeconds() {
+    return refreshExpireSeconds;
+  }
+
 }

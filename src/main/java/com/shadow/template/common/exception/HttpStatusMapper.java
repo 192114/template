@@ -24,6 +24,8 @@ public final class HttpStatusMapper {
       case EMAIL_SEND_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
       case EMAIL_CODE_EXPIRED -> HttpStatus.BAD_REQUEST;
       case EMAIL_CODE_INCORRECT -> HttpStatus.BAD_REQUEST;
+      case FAILED_PASSWORD_LOGIN -> HttpStatus.BAD_REQUEST;
+      case FAILED_EMAILCODE_LOGIN -> HttpStatus.BAD_REQUEST;
     };
   }
 }

@@ -6,7 +6,7 @@ import com.shadow.template.common.result.ResultCode;
 import lombok.Getter;
 
 @Getter
-public enum EmailUsage {
+public enum EmailUsageEnum {
   REGISTER(1),
   LOGIN(2),
   RESET_PASSWORD(3),
@@ -14,12 +14,12 @@ public enum EmailUsage {
 
   private final int code;
 
-  EmailUsage(int code) {
+  EmailUsageEnum(int code) {
     this.code = code;
   }
 
-  public static EmailUsage fromCode(String code) {
-    for (EmailUsage u : values()) {
+  public static EmailUsageEnum fromCode(String code) {
+    for (EmailUsageEnum u : values()) {
       try {
         final int codeNumber = Integer.parseInt(code);
         if (u.code == codeNumber) {

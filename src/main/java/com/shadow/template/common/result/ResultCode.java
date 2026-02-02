@@ -20,7 +20,9 @@ public enum ResultCode {
   USER_EMAIL_EXISTS(2001, "邮箱已存在"),
   EMAIL_SEND_FAILED(2002, "邮件发送失败"),
   EMAIL_CODE_EXPIRED(2003, "邮箱验证码不存在或已过期"),
-  EMAIL_CODE_INCORRECT(2004, "邮箱验证码不正确");
+  EMAIL_CODE_INCORRECT(2004, "邮箱验证码不正确"),
+  FAILED_PASSWORD_LOGIN(2005, "邮箱或密码错误"),
+  FAILED_EMAILCODE_LOGIN(2006, "邮箱或验证码错误");
 
   private final int code;
   private final String message;

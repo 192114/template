@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.common.util.EmailCodeGenerator;
-import com.shadow.template.modules.auth.enums.EmailUsage;
+import com.shadow.template.modules.auth.enums.EmailUsageEnum;
 import com.shadow.template.modules.auth.service.EmailService;
 
 import jakarta.mail.MessagingException;
@@ -108,7 +108,7 @@ public class EmailServiceImpl implements EmailService {
   }
 
   @Override
-  public void sendEmail(String to, EmailUsage usage) {
+  public void sendEmail(String to, EmailUsageEnum usage) {
     try {
       MimeMessage message = javaMailSender.createMimeMessage();
 

@@ -1,17 +1,25 @@
 package com.shadow.template.modules.auth.service.impl;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
+import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
+import com.shadow.template.modules.auth.enums.LoginTypeEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.vo.LoginResponseVo;
 import com.shadow.template.modules.user.dto.UserCreateDto;
-
+import com.shadow.template.modules.user.entity.UserAuthEntity;
+import com.shadow.template.modules.auth.entity.UserSessionEntity;
+import com.shadow.template.modules.auth.mapper.UserSessionMapper;
 import com.shadow.template.modules.user.service.UserService;
+import com.shadow.template.security.JwtTokenProvider;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -20,12 +28,69 @@ public class AuthServiceImpl implements AuthService {
   private UserService userService;
 
   @Autowired
+  PasswordEncoder passwordEncoder;
+
+  @Autowired
   private StringRedisTemplate stringRedisTemplate;
 
+  @Autowired
+  private JwtTokenProvider jwtTokenProvider;
+
+  @Autowired
+  private UserSessionMapper userSessionMapper;
+
   @Override
-  public LoginResponseVo login(UserCreateDto userAuthDto) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'login'");
+  public LoginResponseVo login(UserLoginDto userLoginDto) {
+    final String email = userLoginDto.getEmail();
+    final boolean isExist = userService.isExistByEmail(email);
+
+    final LoginTypeEnum loginTypeEnum = LoginTypeEnum.fromCode(userLoginDto.getLoginType());
+
+    // 密码登录
+    if (loginTypeEnum.getCode() == 1) {
+      if (!isExist) {
+        throw new BizException(ResultCode.FAILED_PASSWORD_LOGIN);
+      }
+
+      final String password = userLoginDto.getPassword();
+
+      final UserAuthEntity userAuthEntity = userService.getUserByEmail(email);
+
+      final String passwordHash = userAuthEntity.getPasswordHash();
+
+      boolean matches = passwordEncoder.matches(password, passwordHash);
+      if (!matches) {
+        throw new BizException(ResultCode.FAILED_PASSWORD_LOGIN);
+      }
+
+      // 生成 token
+      final String token = jwtTokenProvider.generateToken(userAuthEntity.getId());
+      final String refreshToken = jwtTokenProvider.generateRefreshToken(userAuthEntity.getId());
+
+      final String refreshTokenHash = passwordEncoder.encode(refreshToken);
+
+      final UserSessionEntity userSessionEntity = new UserSessionEntity();
+      userSessionEntity.setUserId(userAuthEntity.getId());
+      userSessionEntity.setTokenHash(refreshTokenHash);
+      userSessionEntity.setRevoked(false);
+      final LocalDateTime expireTime = LocalDateTime.now().plusSeconds(jwtTokenProvider.getRefreshExpireSeconds());
+      userSessionEntity.setExpireTime(expireTime);
+
+      userSessionMapper.insert(userSessionEntity);
+
+      final LoginResponseVo loginResponseVo = new LoginResponseVo();
+      loginResponseVo.setToken(token);
+      loginResponseVo.setRefreshToken(refreshToken);
+      return loginResponseVo;
+    }
+
+    if (loginTypeEnum.getCode() == 2) {
+      if (!isExist) {
+        throw new BizException(ResultCode.FAILED_EMAILCODE_LOGIN);
+      }
+    }
+
+    return null;
   }
 
   @Override
@@ -57,5 +122,5 @@ public class AuthServiceImpl implements AuthService {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'refreshToken'");
   }
-  
+
 }
