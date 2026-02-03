@@ -73,8 +73,9 @@ app:
     secret: ${JWT_SECRET}
     issuer: ${JWT_ISSUER}
     expire-seconds: ${JWT_EXPIRE_SECONDS}
-    refresh-secret: ${JWT_REFRESH_SECRET}
-    refresh-expire-seconds: ${JWT_REFRESH_EXPIRE_SECONDS}
+  
+  refresh:
+    expire-days: ${REFRESH_EXPIRE_DAYS}
 
   security:
     permit-all: /auth/**,/actuator/**

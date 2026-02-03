@@ -1,7 +1,5 @@
 package com.shadow.template.modules.auth.service.impl;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,11 +11,10 @@ import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
 import com.shadow.template.modules.auth.service.AuthService;
+import com.shadow.template.modules.auth.service.RefreshTokenService;
 import com.shadow.template.modules.auth.vo.LoginResponseVo;
 import com.shadow.template.modules.user.dto.UserCreateDto;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
-import com.shadow.template.modules.auth.entity.UserSessionEntity;
-import com.shadow.template.modules.auth.mapper.UserSessionMapper;
 import com.shadow.template.modules.user.service.UserService;
 import com.shadow.template.security.JwtTokenProvider;
 
@@ -28,6 +25,9 @@ public class AuthServiceImpl implements AuthService {
   private UserService userService;
 
   @Autowired
+  private RefreshTokenService refreshTokenService;
+
+  @Autowired
   PasswordEncoder passwordEncoder;
 
   @Autowired
@@ -35,9 +35,6 @@ public class AuthServiceImpl implements AuthService {
 
   @Autowired
   private JwtTokenProvider jwtTokenProvider;
-
-  @Autowired
-  private UserSessionMapper userSessionMapper;
 
   @Override
   public LoginResponseVo login(UserLoginDto userLoginDto) {
@@ -65,18 +62,9 @@ public class AuthServiceImpl implements AuthService {
 
       // 生成 token
       final String token = jwtTokenProvider.generateToken(userAuthEntity.getId());
-      final String refreshToken = jwtTokenProvider.generateRefreshToken(userAuthEntity.getId());
-
-      final String refreshTokenHash = passwordEncoder.encode(refreshToken);
-
-      final UserSessionEntity userSessionEntity = new UserSessionEntity();
-      userSessionEntity.setUserId(userAuthEntity.getId());
-      userSessionEntity.setTokenHash(refreshTokenHash);
-      userSessionEntity.setRevoked(false);
-      final LocalDateTime expireTime = LocalDateTime.now().plusSeconds(jwtTokenProvider.getRefreshExpireSeconds());
-      userSessionEntity.setExpireTime(expireTime);
-
-      userSessionMapper.insert(userSessionEntity);
+      // 生成
+      final String refreshToken = refreshTokenService.generateRefreshToken();
+      refreshTokenService.createSession(userAuthEntity.getId(), refreshToken);
 
       final LoginResponseVo loginResponseVo = new LoginResponseVo();
       loginResponseVo.setToken(token);
@@ -118,9 +106,18 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public void refreshToken() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'refreshToken'");
-  }
+  public LoginResponseVo refreshToken(String refreshToken) {
+    final Long userId = refreshTokenService.verifyAndGetUserId(refreshToken);
 
+    final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshToken);
+
+    final String token = jwtTokenProvider.generateToken(userId);
+
+    final LoginResponseVo loginResponseVo = new LoginResponseVo();
+
+    loginResponseVo.setRefreshToken(nextRefreshToken);
+    loginResponseVo.setToken(token);
+
+    return loginResponseVo;
+  }
 }

@@ -9,5 +9,5 @@ public interface AuthService {
 
   void register(UserRegisterDto userRegisterDto);
 
-  void refreshToken();
+  LoginResponseVo refreshToken(String refreshToken);
 }

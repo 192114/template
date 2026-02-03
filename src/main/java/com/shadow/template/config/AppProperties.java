@@ -22,6 +22,9 @@ public class AppProperties {
   @Valid
   private Security security = new Security();
 
+  @Valid
+  private Refresh refresh = new Refresh();
+
   @Getter
   @Setter
   public static class Jwt {
@@ -34,21 +37,19 @@ public class AppProperties {
     @Min(60)
     private long expireSeconds;
 
-    @NotBlank
-    private String refreshSecret;
-
-    @Min(60)
-    private long refreshExpireSeconds;
-
     @PostConstruct
     public void validate() {
       if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
         throw new IllegalStateException("JWT secret 长度至少 32 bytes");
       }
-      if (refreshSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
-        throw new IllegalStateException("JWT refresh secret 长度至少 32 bytes");
-      }
     }
+  }
+
+  @Getter
+  @Setter
+  public static class Refresh {
+    @Min(1)
+    private long expireDays;
   }
 
   @Getter

@@ -1,12 +1,12 @@
 package com.shadow.template.modules.auth.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shadow.template.common.result.Result;
+import com.shadow.template.common.util.CookieUtils;
+import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
@@ -31,6 +31,8 @@ public class AuthController {
   @Autowired
   private EmailService mailService;
 
+  private AppProperties appProperties;
+
   @PostMapping("/email")
   public Result<Void> send(@RequestBody @Valid SendEmailDto sendEmailDto) {
     final EmailUsageEnum usage = EmailUsageEnum.fromCode(sendEmailDto.getUsage());
@@ -50,11 +52,22 @@ public class AuthController {
       HttpServletResponse response) {
     LoginResponseVo loginResponseVo = authService.login(userLoginDto);
 
-    ResponseCookie cookie = ResponseCookie.from("token", loginResponseVo.getToken()).httpOnly(true).secure(true)
-        .sameSite("None").path("/").build();
-
-    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    CookieUtils.setCookie(response, "refreshToken", loginResponseVo.getRefreshToken(),
+        appProperties.getRefresh().getExpireDays());
 
     return Result.succuess(loginResponseVo);
   }
+
+  @PostMapping("/refresh")
+  public Result<LoginResponseVo> refresh(HttpServletRequest request,
+      HttpServletResponse response) {
+    final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
+    final LoginResponseVo loginResponseVo = authService.refreshToken(refreshToken);
+
+    CookieUtils.setCookie(response, "refreshToken", loginResponseVo.getRefreshToken(),
+        appProperties.getRefresh().getExpireDays());
+
+    return Result.succuess(loginResponseVo);
+  }
+
 }

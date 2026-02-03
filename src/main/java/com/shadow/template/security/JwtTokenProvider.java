@@ -18,20 +18,14 @@ public class JwtTokenProvider {
   private final SecretKey key;
   private final String issuer;
   private final long expireSeconds;
-  private final SecretKey refreshKey;
-  private final long refreshExpireSeconds;
 
   public JwtTokenProvider(
       @Value("${app.jwt.secret}") String secret,
       @Value("${app.jwt.issuer}") String issuer,
-      @Value("${app.jwt.expire-seconds}") long expireSeconds,
-      @Value("${app.jwt.refresh-secret}") String refreshSecret,
-      @Value("${app.jwt.refresh-expire-seconds}") long refreshExpireSeconds) {
+      @Value("${app.jwt.expire-seconds}") long expireSeconds) {
     this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-    this.refreshKey = Keys.hmacShaKeyFor(refreshSecret.getBytes(StandardCharsets.UTF_8));
     this.issuer = issuer;
     this.expireSeconds = expireSeconds;
-    this.refreshExpireSeconds = refreshExpireSeconds;
   }
 
   // 生成 token
@@ -62,40 +56,7 @@ public class JwtTokenProvider {
     return parseToken(token).getPayload().getSubject();
   }
 
-  // 生成refresh token
-  public String generateRefreshToken(Long userId) {
-    Date now = new Date();
-    Date exp = new Date(now.getTime() + refreshExpireSeconds * 1000);
-
-    return Jwts.builder()
-        .issuer(issuer)
-        .subject(String.valueOf(userId))
-        .issuedAt(now)
-        .expiration(exp)
-        .signWith(refreshKey)
-        .compact();
-  }
-
-  // 解析 refresh token
-  public Jws<Claims> parseRefreshToken(String refreshToken) throws JwtException {
-    return Jwts.parser()
-        .verifyWith(refreshKey)
-        .requireIssuer(issuer)
-        .build()
-        .parseSignedClaims(refreshToken);
-  }
-
-  // 获取 refresh subject userId
-  public String getRefreshTokenSubject(String refreshToken) throws JwtException {
-    return parseRefreshToken(refreshToken).getPayload().getSubject();
-  }
-
   public long getExpireSeconds() {
     return expireSeconds;
   }
-
-  public long getRefreshExpireSeconds() {
-    return refreshExpireSeconds;
-  }
-
 }
