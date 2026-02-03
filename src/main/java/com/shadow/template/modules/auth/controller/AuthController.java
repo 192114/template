@@ -31,6 +31,7 @@ public class AuthController {
   @Autowired
   private EmailService mailService;
 
+  @Autowired
   private AppProperties appProperties;
 
   @PostMapping("/email")

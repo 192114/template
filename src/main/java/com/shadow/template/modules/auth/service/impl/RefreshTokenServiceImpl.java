@@ -22,6 +22,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   @Autowired
   private UserSessionMapper userSessionMapper;
 
+  @Autowired
   private AppProperties appProperties;
 
   private UserSessionEntity getUserSessionEntityByRfreshToken(String refreshToken) {
