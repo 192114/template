@@ -10,10 +10,11 @@ import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
+import com.shadow.template.modules.auth.dto.UserTokenDto;
 import com.shadow.template.modules.auth.enums.EmailUsageEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.EmailService;
-import com.shadow.template.modules.auth.vo.LoginResponseVo;
+import com.shadow.template.modules.auth.vo.TokenResponseVo;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,26 +50,34 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public Result<LoginResponseVo> login(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request,
+  public Result<TokenResponseVo> login(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request,
       HttpServletResponse response) {
-    LoginResponseVo loginResponseVo = authService.login(userLoginDto);
+    UserTokenDto userTokenDto = authService.login(userLoginDto);
 
-    CookieUtils.setCookie(response, "refreshToken", loginResponseVo.getRefreshToken(),
+    CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
 
-    return Result.succuess(loginResponseVo);
+    final TokenResponseVo tokenResponseVo = new TokenResponseVo();
+
+    tokenResponseVo.setToken(userTokenDto.getToken());
+
+    return Result.succuess(tokenResponseVo);
   }
 
   @PostMapping("/refresh")
-  public Result<LoginResponseVo> refresh(HttpServletRequest request,
+  public Result<TokenResponseVo> refresh(HttpServletRequest request,
       HttpServletResponse response) {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
-    final LoginResponseVo loginResponseVo = authService.refreshToken(refreshToken);
+    final UserTokenDto userTokenDto = authService.refreshToken(refreshToken);
 
-    CookieUtils.setCookie(response, "refreshToken", loginResponseVo.getRefreshToken(),
+    CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
 
-    return Result.succuess(loginResponseVo);
+    final TokenResponseVo tokenResponseVo = new TokenResponseVo();
+
+    tokenResponseVo.setToken(userTokenDto.getToken());
+
+    return Result.succuess(tokenResponseVo);
   }
 
 }

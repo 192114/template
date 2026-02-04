@@ -9,10 +9,10 @@ import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
+import com.shadow.template.modules.auth.dto.UserTokenDto;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
-import com.shadow.template.modules.auth.vo.LoginResponseVo;
 import com.shadow.template.modules.user.dto.UserCreateDto;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.service.UserService;
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
   private JwtTokenProvider jwtTokenProvider;
 
   @Override
-  public LoginResponseVo login(UserLoginDto userLoginDto) {
+  public UserTokenDto login(UserLoginDto userLoginDto) {
     final String email = userLoginDto.getEmail();
     final boolean isExist = userService.isExistByEmail(email);
 
@@ -66,10 +66,10 @@ public class AuthServiceImpl implements AuthService {
       final String refreshToken = refreshTokenService.generateRefreshToken();
       refreshTokenService.createSession(userAuthEntity.getId(), refreshToken);
 
-      final LoginResponseVo loginResponseVo = new LoginResponseVo();
-      loginResponseVo.setToken(token);
-      loginResponseVo.setRefreshToken(refreshToken);
-      return loginResponseVo;
+      final UserTokenDto userTokenDto = new UserTokenDto();
+      userTokenDto.setToken(token);
+      userTokenDto.setRefreshToken(refreshToken);
+      return userTokenDto;
     }
 
     if (loginTypeEnum.getCode() == 2) {
@@ -106,18 +106,18 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public LoginResponseVo refreshToken(String refreshToken) {
+  public UserTokenDto refreshToken(String refreshToken) {
     final Long userId = refreshTokenService.verifyAndGetUserId(refreshToken);
 
     final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshToken);
 
     final String token = jwtTokenProvider.generateToken(userId);
 
-    final LoginResponseVo loginResponseVo = new LoginResponseVo();
+    final UserTokenDto userTokenDto = new UserTokenDto();
 
-    loginResponseVo.setRefreshToken(nextRefreshToken);
-    loginResponseVo.setToken(token);
+    userTokenDto.setRefreshToken(nextRefreshToken);
+    userTokenDto.setToken(token);
 
-    return loginResponseVo;
+    return userTokenDto;
   }
 }

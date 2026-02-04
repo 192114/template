@@ -3,6 +3,6 @@ package com.shadow.template.modules.auth.vo;
 import lombok.Data;
 
 @Data
-public class RefreshTokenResponseVo {
+public class TokenResponseVo {
   private String token;
 }
