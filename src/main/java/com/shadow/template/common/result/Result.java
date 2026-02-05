@@ -12,12 +12,12 @@ public class Result<T> {
   private String message;
   private T data;
 
-  public static <T> Result<T> succuess(T data) {
+  public static <T> Result<T> success(T data) {
     return new Result<>(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMessage(), data);
   }
 
-  public static Result<Void> succuess() {
-    return succuess(null);
+  public static Result<Void> success() {
+    return success(null);
   }
 
   public static Result<Void> failure(ResultCode code) {

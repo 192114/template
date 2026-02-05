@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shadow.template.common.result.Result;
 import com.shadow.template.common.util.CookieUtils;
+import com.shadow.template.common.util.RequestUtils;
 import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
@@ -40,17 +41,17 @@ public class AuthController {
     final EmailUsageEnum usage = EmailUsageEnum.fromCode(sendEmailDto.getUsage());
     mailService.sendEmail(sendEmailDto.getEmail(), usage);
 
-    return Result.succuess();
+    return Result.success();
   }
 
   @PostMapping("/register")
   public Result<Void> register(@RequestBody @Valid UserRegisterDto userRegisterDto) {
     authService.register(userRegisterDto);
-    return Result.succuess();
+    return Result.success();
   }
 
   @PostMapping("/login")
-  public Result<TokenResponseVo> login(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request,
+  public Result<TokenResponseVo> login(@RequestBody @Valid UserLoginDto userLoginDto, HttpServletRequest request,
       HttpServletResponse response) {
     UserTokenDto userTokenDto = authService.login(userLoginDto);
 
@@ -61,14 +62,19 @@ public class AuthController {
 
     tokenResponseVo.setToken(userTokenDto.getToken());
 
-    return Result.succuess(tokenResponseVo);
+    return Result.success(tokenResponseVo);
   }
 
   @PostMapping("/refresh")
   public Result<TokenResponseVo> refresh(HttpServletRequest request,
       HttpServletResponse response) {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
-    final UserTokenDto userTokenDto = authService.refreshToken(refreshToken);
+
+    final String deviceId = RequestUtils.getDeviceId(request);
+    final String useragent = RequestUtils.getUserAgent(request);
+    final String ipAddress = RequestUtils.getIpAddress(request);
+
+    final UserTokenDto userTokenDto = authService.refreshToken(refreshToken, deviceId, useragent, ipAddress);
 
     CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
@@ -77,7 +83,7 @@ public class AuthController {
 
     tokenResponseVo.setToken(userTokenDto.getToken());
 
-    return Result.succuess(tokenResponseVo);
+    return Result.success(tokenResponseVo);
   }
 
 }

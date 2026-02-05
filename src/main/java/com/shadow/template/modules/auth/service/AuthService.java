@@ -9,5 +9,5 @@ public interface AuthService {
 
   void register(UserRegisterDto userRegisterDto);
 
-  UserTokenDto refreshToken(String refreshToken);
+  UserTokenDto refreshToken(String refreshToken, String deviceId, String useragent, String ipAddress);
 }

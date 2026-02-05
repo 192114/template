@@ -78,7 +78,7 @@ app:
     expire-days: ${REFRESH_EXPIRE_DAYS}
 
   security:
-    permit-all: /auth/**,/actuator/**
+    permit-all: /auth/**,/actuator/health,/actuator/health/**
     cors:
       allowed-origins: ${CORS_ALLOWED_ORIGINS}
       allowed-methods: ${CORS_ALLOWED_METHODS}

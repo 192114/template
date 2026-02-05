@@ -1,12 +1,11 @@
 package com.shadow.template.modules.auth.service;
 
-import java.time.LocalDateTime;
+import com.shadow.template.modules.auth.dto.CreateSessionDto;
 
 public interface RefreshTokenService {
   String generateRefreshToken();
-  Long verifyAndGetUserId(String refreshToken);
-  String rotateRefreshToken(String refreshToken);
-  void revoke(String refreshToken);
-  void createSession(Long userId, String refreshToken);
-  void createSession(Long userId, String refreshToken, LocalDateTime expireDateTime);
+  Long verifyAndGetUserId(String refreshToken, String deviceId);
+  String rotateRefreshToken(String refreshToken, String deviceId, String useragent, String ipAddress);
+  void revoke(String refreshToken, String deviceId);
+  void createSession(CreateSessionDto createSessionDto);
 }

@@ -16,7 +16,7 @@ public class CookieUtils {
         .secure(true)
         .sameSite("Strict")
         .path("/")
-        .maxAge(maxAgeDays)
+        .maxAge(maxAgeDays * 24 * 3600)
         .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -28,7 +28,7 @@ public class CookieUtils {
     }
 
     for (Cookie cookie : request.getCookies()) {
-      if (cookie.getName() == name) {
+      if (cookie.getName().equals(name)) {
         return cookie.getValue();
       }
     }

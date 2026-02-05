@@ -25,10 +25,15 @@ CREATE TABLE IF NOT EXISTS user_session (
   id BIGINT NOT NULL AUTO_INCREMENT,
   user_id BIGINT NOT NULL COMMENT '用户ID',
   token_hash VARCHAR(255) NOT NULL COMMENT 'token哈希',
-  revoked TINYINT NOT NULL DEFAULT 0 COMMENT '是否撤销 1 失效 （退出登录） 0 有效',
+  revoked TINYINT NOT NULL DEFAULT 0 COMMENT '是否撤销 0 未撤销 1 撤销',
+  revoked_time DATETIME COMMENT '撤销时间',
+  parent_id BIGINT COMMENT '上次的会话id',
+  device_id VARCHAR(255) COMMENT '设备ID',
+  user_agent VARCHAR(512) COMMENT 'User-Agent',
+  ip_address VARCHAR(64) COMMENT 'IP地址',
   expire_time DATETIME COMMENT '过期时间',
   create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (id),
-  UNIQUE KEY uk_user_session_user_id (user_id)
+  UNIQUE KEY uk_token_hash (token_hash),
+  INDEX idx_user_device (user_id, device_id) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
