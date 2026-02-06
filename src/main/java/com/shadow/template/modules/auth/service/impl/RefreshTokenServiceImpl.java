@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.modules.auth.dto.CreateSessionDto;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
 import com.shadow.template.modules.auth.entity.UserSessionEntity;
 import com.shadow.template.modules.auth.mapper.UserSessionMapper;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
@@ -64,8 +65,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   }
 
   @Override
-  public String rotateRefreshToken(String refreshToken, String deviceId, String useragent, String ipAddress) {
-    final UserSessionEntity userSessionEntity = getUserSessionEntityByRfreshToken(refreshToken, deviceId);
+  public String rotateRefreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
+    final UserSessionEntity userSessionEntity = getUserSessionEntityByRfreshToken(refreshTokenRequestDto.getRefreshToken(), refreshTokenRequestDto.getDeviceId());
 
     final LocalDateTime expireTime = userSessionEntity.getExpireTime();
     final Long parentId = userSessionEntity.getId();
@@ -93,9 +94,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     createSessionDto.setParentId(parentId);
     createSessionDto.setExpireTime(expireTime);
     createSessionDto.setRefreshToken(nextRefreshToken);
-    createSessionDto.setDeviceId(deviceId);
-    createSessionDto.setIpAddress(ipAddress);
-    createSessionDto.setUseragent(useragent);
+    createSessionDto.setDeviceId(refreshTokenRequestDto.getDeviceId());
+    createSessionDto.setIpAddress(refreshTokenRequestDto.getIpAddress());
+    createSessionDto.setUseragent(refreshTokenRequestDto.getUserAgent());
 
     createSession(createSessionDto);
 

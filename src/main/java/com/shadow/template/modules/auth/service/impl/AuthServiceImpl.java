@@ -11,6 +11,7 @@ import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.CreateSessionDto;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.dto.UserTokenDto;
@@ -150,10 +151,10 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public UserTokenDto refreshToken(String refreshToken, String deviceId, String useagent, String ipAddress) {
-    final Long userId = refreshTokenService.verifyAndGetUserId(refreshToken, deviceId);
+  public UserTokenDto refreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
+    final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestDto.getRefreshToken(), refreshTokenRequestDto.getDeviceId());
 
-    final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshToken, deviceId, useagent, ipAddress);
+    final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequestDto);
 
     final String token = jwtTokenProvider.generateToken(userId);
 

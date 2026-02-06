@@ -8,6 +8,7 @@ import com.shadow.template.common.result.Result;
 import com.shadow.template.common.util.CookieUtils;
 import com.shadow.template.common.util.RequestUtils;
 import com.shadow.template.config.AppProperties;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
@@ -74,7 +75,13 @@ public class AuthController {
     final String useragent = RequestUtils.getUserAgent(request);
     final String ipAddress = RequestUtils.getIpAddress(request);
 
-    final UserTokenDto userTokenDto = authService.refreshToken(refreshToken, deviceId, useragent, ipAddress);
+    final RefreshTokenRequestDto refreshTokenRequestDto = new RefreshTokenRequestDto();
+    refreshTokenRequestDto.setRefreshToken(refreshToken);
+    refreshTokenRequestDto.setDeviceId(deviceId);
+    refreshTokenRequestDto.setUserAgent(useragent);
+    refreshTokenRequestDto.setIpAddress(ipAddress);
+
+    final UserTokenDto userTokenDto = authService.refreshToken(refreshTokenRequestDto);
 
     CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
