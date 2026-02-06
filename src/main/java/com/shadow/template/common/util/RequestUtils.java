@@ -1,5 +1,8 @@
 package com.shadow.template.common.util;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.StringUtils;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 public class RequestUtils {
@@ -29,5 +32,13 @@ public class RequestUtils {
       return realIp;
     }
     return request.getRemoteAddr();
+  }
+
+  public static String getToken(HttpServletRequest request) {
+    String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+      return bearer.substring(7);
+    }
+    return null;
   }
 }

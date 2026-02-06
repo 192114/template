@@ -11,6 +11,7 @@ import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
+import com.shadow.template.modules.auth.dto.UserLogoutDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.dto.UserTokenDto;
 import com.shadow.template.modules.auth.enums.EmailUsageEnum;
@@ -93,4 +94,17 @@ public class AuthController {
     return Result.success(tokenResponseVo);
   }
 
+  @PostMapping("/logout")
+  public Result<Void> logout(HttpServletRequest request,
+      HttpServletResponse response) {
+    final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
+    final UserLogoutDto userLogoutDto = new UserLogoutDto();
+    final String deviceId = RequestUtils.getDeviceId(request);
+    final String token = RequestUtils.getToken(request);
+    userLogoutDto.setRefreshToken(refreshToken);
+    userLogoutDto.setDeviceId(deviceId);
+    userLogoutDto.setToken(token);
+    authService.logout(userLogoutDto);
+    return Result.success();
+  }
 }

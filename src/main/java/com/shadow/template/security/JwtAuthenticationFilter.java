@@ -9,7 +9,6 @@ import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -20,6 +19,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
+import com.shadow.template.common.util.RequestUtils;
+import com.shadow.template.modules.auth.service.TokenBlacklistService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -30,6 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Autowired
   @Qualifier("handlerExceptionResolver")
   private HandlerExceptionResolver resolver;
+
+  @Autowired
+  private TokenBlacklistService tokenBlacklistService;
 
   private final JwtTokenProvider tokenProvider;
 
@@ -43,11 +47,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
 
-    String token = resolveToken(request);
+    String token = RequestUtils.getToken(request);
     if (StringUtils.hasText(token)) {
       try {
 
         String subject = tokenProvider.getTokenSubject(token);
+
+        if (tokenBlacklistService.isTokenInBlacklist(token)) {
+          resolver.resolveException(request, response, null, new BizException(ResultCode.TOKEN_INVALID));
+          return;
+        }
+
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(subject, null,
             null);
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -63,13 +73,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     filterChain.doFilter(request, response);
-  }
-
-  private String resolveToken(HttpServletRequest request) {
-    String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
-    if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
-      return bearer.substring(7);
-    }
-    return null;
   }
 }

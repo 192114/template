@@ -13,11 +13,13 @@ import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.CreateSessionDto;
 import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
+import com.shadow.template.modules.auth.dto.UserLogoutDto;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
 import com.shadow.template.modules.auth.dto.UserTokenDto;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
+import com.shadow.template.modules.auth.service.TokenBlacklistService;
 import com.shadow.template.modules.user.dto.UserCreateDto;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.enums.UserStatusEnum;
@@ -32,6 +34,9 @@ public class AuthServiceImpl implements AuthService {
 
   @Autowired
   private RefreshTokenService refreshTokenService;
+
+  @Autowired
+  private TokenBlacklistService tokenBlacklistService;
 
   @Autowired
   PasswordEncoder passwordEncoder;
@@ -152,7 +157,8 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public UserTokenDto refreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
-    final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestDto.getRefreshToken(), refreshTokenRequestDto.getDeviceId());
+    final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestDto.getRefreshToken(),
+        refreshTokenRequestDto.getDeviceId());
 
     final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequestDto);
 
@@ -164,5 +170,11 @@ public class AuthServiceImpl implements AuthService {
     userTokenDto.setToken(token);
 
     return userTokenDto;
+  }
+
+  @Override
+  public void logout(UserLogoutDto userLogoutDto) {
+    refreshTokenService.revoke(userLogoutDto.getRefreshToken(), userLogoutDto.getDeviceId());
+    tokenBlacklistService.addTokenToBlacklist(userLogoutDto.getToken());
   }
 }
