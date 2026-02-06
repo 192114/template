@@ -1,17 +1,17 @@
 package com.shadow.template.modules.auth.service;
 
-import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
-import com.shadow.template.modules.auth.dto.UserLoginDto;
-import com.shadow.template.modules.auth.dto.UserLogoutDto;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.dto.UserLoginCommand;
+import com.shadow.template.modules.auth.dto.UserLogoutCommand;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
-import com.shadow.template.modules.auth.dto.UserTokenDto;
+import com.shadow.template.modules.auth.dto.UserTokenResult;
 
 public interface AuthService {
-  UserTokenDto login(UserLoginDto userLoginDto);
+  UserTokenResult login(UserLoginCommand userLoginCommand);
 
   void register(UserRegisterDto userRegisterDto);
 
-  UserTokenDto refreshToken(RefreshTokenRequestDto refreshTokenRequestDto);
+  UserTokenResult refreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand);
 
-  void logout(UserLogoutDto userLogoutDto);
+  void logout(UserLogoutCommand userLogoutDto);
 }

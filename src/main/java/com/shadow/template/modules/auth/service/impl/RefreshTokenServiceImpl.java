@@ -12,8 +12,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
-import com.shadow.template.modules.auth.dto.CreateSessionDto;
-import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
+import com.shadow.template.modules.auth.dto.CreateSessionCommand;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
 import com.shadow.template.modules.auth.entity.UserSessionEntity;
 import com.shadow.template.modules.auth.mapper.UserSessionMapper;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
@@ -65,8 +65,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   }
 
   @Override
-  public String rotateRefreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
-    final UserSessionEntity userSessionEntity = getUserSessionEntityByRfreshToken(refreshTokenRequestDto.getRefreshToken(), refreshTokenRequestDto.getDeviceId());
+  public String rotateRefreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
+    final UserSessionEntity userSessionEntity = getUserSessionEntityByRfreshToken(refreshTokenRequestCommand.getRefreshToken(), refreshTokenRequestCommand.getDeviceId());
 
     final LocalDateTime expireTime = userSessionEntity.getExpireTime();
     final Long parentId = userSessionEntity.getId();
@@ -88,17 +88,17 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     final String nextRefreshToken = generateRefreshToken();
 
-    final CreateSessionDto createSessionDto = new CreateSessionDto();
+    final CreateSessionCommand createSessionCommand = new CreateSessionCommand();
 
-    createSessionDto.setUserId(userId);
-    createSessionDto.setParentId(parentId);
-    createSessionDto.setExpireTime(expireTime);
-    createSessionDto.setRefreshToken(nextRefreshToken);
-    createSessionDto.setDeviceId(refreshTokenRequestDto.getDeviceId());
-    createSessionDto.setIpAddress(refreshTokenRequestDto.getIpAddress());
-    createSessionDto.setUseragent(refreshTokenRequestDto.getUserAgent());
+    createSessionCommand.setUserId(userId);
+    createSessionCommand.setParentId(parentId);
+    createSessionCommand.setExpireTime(expireTime);
+    createSessionCommand.setRefreshToken(nextRefreshToken);
+    createSessionCommand.setDeviceId(refreshTokenRequestCommand.getDeviceId());
+    createSessionCommand.setIpAddress(refreshTokenRequestCommand.getIpAddress());
+    createSessionCommand.setUseragent(refreshTokenRequestCommand.getUserAgent());
 
-    createSession(createSessionDto);
+    createSession(createSessionCommand);
 
     return nextRefreshToken;
   }
@@ -113,15 +113,31 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   }
 
   @Override
-  public void createSession(CreateSessionDto createSessionDto) {
+  public void revokeByUserId(Long userId, String deviceId) {
+    LambdaQueryWrapper<UserSessionEntity> qw = Wrappers.lambdaQuery();
+    qw.eq(UserSessionEntity::getUserId, userId).eq(UserSessionEntity::getDeviceId, deviceId);
+    UserSessionEntity userSessionEntity = userSessionMapper.selectOne(qw);
+    if (userSessionEntity == null) {
+      return;
+    }
+    userSessionEntity.setRevoked(true);
+    userSessionEntity.setRevokedTime(LocalDateTime.now());
+    userSessionMapper.updateById(userSessionEntity);
+  }
+
+  @Override
+  public void createSession(CreateSessionCommand createSessionCommand) {
     final UserSessionEntity userSessionEntity = new UserSessionEntity();
 
-    userSessionEntity.setUserId(createSessionDto.getUserId());
-    final String refreshTokenHash = DigestUtils.sha256Hex(createSessionDto.getRefreshToken());
+    userSessionEntity.setUserId(createSessionCommand.getUserId());
+    final String refreshTokenHash = DigestUtils.sha256Hex(createSessionCommand.getRefreshToken());
     userSessionEntity.setTokenHash(refreshTokenHash);
-    userSessionEntity.setExpireTime(createSessionDto.getExpireTime());
+    userSessionEntity.setExpireTime(createSessionCommand.getExpireTime());
     userSessionEntity.setRevoked(false);
-    userSessionEntity.setParentId(createSessionDto.getParentId());
+    userSessionEntity.setParentId(createSessionCommand.getParentId());
+    userSessionEntity.setDeviceId(createSessionCommand.getDeviceId());
+    userSessionEntity.setUserAgent(createSessionCommand.getUseragent());
+    userSessionEntity.setIpAddress(createSessionCommand.getIpAddress());
 
     userSessionMapper.insert(userSessionEntity);
   }

@@ -8,12 +8,13 @@ import com.shadow.template.common.result.Result;
 import com.shadow.template.common.util.CookieUtils;
 import com.shadow.template.common.util.RequestUtils;
 import com.shadow.template.config.AppProperties;
-import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
 import com.shadow.template.modules.auth.dto.SendEmailDto;
+import com.shadow.template.modules.auth.dto.UserLoginCommand;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
-import com.shadow.template.modules.auth.dto.UserLogoutDto;
+import com.shadow.template.modules.auth.dto.UserLogoutCommand;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
-import com.shadow.template.modules.auth.dto.UserTokenDto;
+import com.shadow.template.modules.auth.dto.UserTokenResult;
 import com.shadow.template.modules.auth.enums.EmailUsageEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.EmailService;
@@ -55,7 +56,15 @@ public class AuthController {
   @PostMapping("/login")
   public Result<TokenResponseVo> login(@RequestBody @Valid UserLoginDto userLoginDto, HttpServletRequest request,
       HttpServletResponse response) {
-    UserTokenDto userTokenDto = authService.login(userLoginDto);
+    final UserLoginCommand userLoginCommand = new UserLoginCommand();
+    userLoginCommand.setEmail(userLoginDto.getEmail());
+    userLoginCommand.setPassword(userLoginDto.getPassword());
+    userLoginCommand.setLoginType(userLoginDto.getLoginType());
+    userLoginCommand.setEmailCode(userLoginDto.getEmailCode());
+    userLoginCommand.setIpAddress(RequestUtils.getIpAddress(request));
+    userLoginCommand.setUseragent(RequestUtils.getUserAgent(request));
+    userLoginCommand.setDeviceId(RequestUtils.getDeviceId(request));
+    UserTokenResult userTokenDto = authService.login(userLoginCommand);
 
     CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
@@ -76,13 +85,13 @@ public class AuthController {
     final String useragent = RequestUtils.getUserAgent(request);
     final String ipAddress = RequestUtils.getIpAddress(request);
 
-    final RefreshTokenRequestDto refreshTokenRequestDto = new RefreshTokenRequestDto();
-    refreshTokenRequestDto.setRefreshToken(refreshToken);
-    refreshTokenRequestDto.setDeviceId(deviceId);
-    refreshTokenRequestDto.setUserAgent(useragent);
-    refreshTokenRequestDto.setIpAddress(ipAddress);
+    final RefreshTokenRequestCommand refreshTokenRequestCommand = new RefreshTokenRequestCommand();
+    refreshTokenRequestCommand.setRefreshToken(refreshToken);
+    refreshTokenRequestCommand.setDeviceId(deviceId);
+    refreshTokenRequestCommand.setUserAgent(useragent);
+    refreshTokenRequestCommand.setIpAddress(ipAddress);
 
-    final UserTokenDto userTokenDto = authService.refreshToken(refreshTokenRequestDto);
+    final UserTokenResult userTokenDto = authService.refreshToken(refreshTokenRequestCommand);
 
     CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
@@ -98,7 +107,7 @@ public class AuthController {
   public Result<Void> logout(HttpServletRequest request,
       HttpServletResponse response) {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
-    final UserLogoutDto userLogoutDto = new UserLogoutDto();
+    final UserLogoutCommand userLogoutDto = new UserLogoutCommand();
     final String deviceId = RequestUtils.getDeviceId(request);
     final String token = RequestUtils.getToken(request);
     userLogoutDto.setRefreshToken(refreshToken);

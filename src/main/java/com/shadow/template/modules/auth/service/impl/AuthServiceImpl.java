@@ -10,17 +10,17 @@ import org.springframework.stereotype.Service;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.config.AppProperties;
-import com.shadow.template.modules.auth.dto.CreateSessionDto;
-import com.shadow.template.modules.auth.dto.RefreshTokenRequestDto;
-import com.shadow.template.modules.auth.dto.UserLoginDto;
-import com.shadow.template.modules.auth.dto.UserLogoutDto;
+import com.shadow.template.modules.auth.dto.CreateSessionCommand;
+import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.dto.UserLoginCommand;
+import com.shadow.template.modules.auth.dto.UserLogoutCommand;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
-import com.shadow.template.modules.auth.dto.UserTokenDto;
+import com.shadow.template.modules.auth.dto.UserTokenResult;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
 import com.shadow.template.modules.auth.service.TokenBlacklistService;
-import com.shadow.template.modules.user.dto.UserCreateDto;
+import com.shadow.template.modules.user.dto.UserCreateCommand;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.enums.UserStatusEnum;
 import com.shadow.template.modules.user.service.UserService;
@@ -50,34 +50,39 @@ public class AuthServiceImpl implements AuthService {
   @Autowired
   private JwtTokenProvider jwtTokenProvider;
 
-  private UserTokenDto generateToken(Long userId) {
+  private UserTokenResult generateToken(Long userId, UserLoginCommand userLoginCommand) {
+    // 如果再次登录 需撤销之前的登录
+    refreshTokenService.revokeByUserId(userId, userLoginCommand.getDeviceId());
+
     // 生成 token
     final String token = jwtTokenProvider.generateToken(userId);
     // 生成
     final String refreshToken = refreshTokenService.generateRefreshToken();
 
-    final CreateSessionDto createSessionDto = new CreateSessionDto();
+    final CreateSessionCommand createSessionDto = new CreateSessionCommand();
 
     final LocalDateTime expireTime = LocalDateTime.now().plusDays(appProperties.getRefresh().getExpireDays());
 
     createSessionDto.setExpireTime(expireTime);
     createSessionDto.setUserId(userId);
     createSessionDto.setRefreshToken(refreshToken);
-
+    createSessionDto.setIpAddress(userLoginCommand.getIpAddress());
+    createSessionDto.setUseragent(userLoginCommand.getUseragent());
+    createSessionDto.setDeviceId(userLoginCommand.getDeviceId());
     refreshTokenService.createSession(createSessionDto);
 
-    final UserTokenDto userTokenDto = new UserTokenDto();
+    final UserTokenResult userTokenDto = new UserTokenResult();
     userTokenDto.setToken(token);
     userTokenDto.setRefreshToken(refreshToken);
     return userTokenDto;
   }
 
   @Override
-  public UserTokenDto login(UserLoginDto userLoginDto) {
-    final String email = userLoginDto.getEmail();
+  public UserTokenResult login(UserLoginCommand userLoginCommand) {
+    final String email = userLoginCommand.getEmail();
     final UserAuthEntity userAuthEntity = userService.getUserByEmail(email);
 
-    final LoginTypeEnum loginTypeEnum = LoginTypeEnum.fromCode(userLoginDto.getLoginType());
+    final LoginTypeEnum loginTypeEnum = LoginTypeEnum.fromCode(userLoginCommand.getLoginType());
 
     // 密码登录
     if (loginTypeEnum.getCode() == 1) {
@@ -89,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
         throw new BizException(ResultCode.USER_DISABLED);
       }
 
-      final String password = userLoginDto.getPassword();
+      final String password = userLoginCommand.getPassword();
 
       final String passwordHash = userAuthEntity.getPasswordHash();
 
@@ -98,10 +103,11 @@ public class AuthServiceImpl implements AuthService {
         throw new BizException(ResultCode.FAILED_PASSWORD_LOGIN);
       }
 
-      final UserTokenDto userTokenDto = generateToken(userAuthEntity.getId());
+      final UserTokenResult userTokenDto = generateToken(userAuthEntity.getId(), userLoginCommand);
       return userTokenDto;
     }
 
+    // 邮箱验证码登录
     if (loginTypeEnum.getCode() == 2) {
       if (userAuthEntity == null) {
         throw new BizException(ResultCode.FAILED_EMAILCODE_LOGIN);
@@ -117,15 +123,14 @@ public class AuthServiceImpl implements AuthService {
         throw new BizException(ResultCode.EMAIL_CODE_EXPIRED);
       }
 
-      if (!code.equals(userLoginDto.getEmailCode())) {
+      if (!code.equals(userLoginCommand.getEmailCode())) {
         throw new BizException(ResultCode.EMAIL_CODE_INCORRECT);
       }
 
-      stringRedisTemplate.delete("code:email:LOGIN:" + userLoginDto.getEmail());
+      stringRedisTemplate.delete("code:email:LOGIN:" + userLoginCommand.getEmail());
 
-      final UserTokenDto userTokenDto = generateToken(userAuthEntity.getId());
+      final UserTokenResult userTokenDto = generateToken(userAuthEntity.getId(), userLoginCommand);
       return userTokenDto;
-
     }
 
     throw new BizException(ResultCode.LOGIN_TYPE_ERROR);
@@ -149,22 +154,22 @@ public class AuthServiceImpl implements AuthService {
 
     stringRedisTemplate.delete("code:email:REGISTER:" + userRegisterDto.getEmail());
 
-    UserCreateDto userCreateDto = new UserCreateDto();
+    UserCreateCommand userCreateDto = new UserCreateCommand();
     userCreateDto.setEmail(userRegisterDto.getEmail());
     userCreateDto.setPassword(userRegisterDto.getPassword());
     userService.createUser(userCreateDto);
   }
 
   @Override
-  public UserTokenDto refreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
-    final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestDto.getRefreshToken(),
-        refreshTokenRequestDto.getDeviceId());
+  public UserTokenResult refreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
+    final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestCommand.getRefreshToken(),
+    refreshTokenRequestCommand.getDeviceId());
 
-    final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequestDto);
+    final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequestCommand);
 
     final String token = jwtTokenProvider.generateToken(userId);
 
-    final UserTokenDto userTokenDto = new UserTokenDto();
+    final UserTokenResult userTokenDto = new UserTokenResult();
 
     userTokenDto.setRefreshToken(nextRefreshToken);
     userTokenDto.setToken(token);
@@ -173,7 +178,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public void logout(UserLogoutDto userLogoutDto) {
+  public void logout(UserLogoutCommand userLogoutDto) {
     refreshTokenService.revoke(userLogoutDto.getRefreshToken(), userLogoutDto.getDeviceId());
     tokenBlacklistService.addTokenToBlacklist(userLogoutDto.getToken());
   }
