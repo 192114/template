@@ -1,5 +1,7 @@
 package com.shadow.template.modules.auth.service.impl;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +111,12 @@ public class AuthServiceImpl implements AuthService {
 
     // 邮箱验证码登录
     if (loginTypeEnum.getCode() == 2) {
+      final String code = stringRedisTemplate.opsForValue().get("code:email:LOGIN:" + email);
+
+      if (code == null) {
+        throw new BizException(ResultCode.EMAIL_CODE_EXPIRED);
+      }
+
       if (userAuthEntity == null) {
         throw new BizException(ResultCode.FAILED_EMAILCODE_LOGIN);
       }
@@ -117,14 +125,9 @@ public class AuthServiceImpl implements AuthService {
         throw new BizException(ResultCode.USER_DISABLED);
       }
 
-      final String code = stringRedisTemplate.opsForValue().get("code:email:LOGIN:" + email);
-
-      if (code == null) {
-        throw new BizException(ResultCode.EMAIL_CODE_EXPIRED);
-      }
-
-      if (!code.equals(userLoginCommand.getEmailCode())) {
-        throw new BizException(ResultCode.EMAIL_CODE_INCORRECT);
+      if (!MessageDigest.isEqual(code.getBytes(StandardCharsets.UTF_8),
+          userLoginCommand.getEmailCode().getBytes(StandardCharsets.UTF_8))) {
+        throw new BizException(ResultCode.FAILED_EMAILCODE_LOGIN);
       }
 
       stringRedisTemplate.delete("code:email:LOGIN:" + userLoginCommand.getEmail());
@@ -138,14 +141,14 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public void register(UserRegisterDto userRegisterDto) {
-    final boolean isExist = userService.isExistByEmail(userRegisterDto.getEmail());
-    if (isExist) {
-      throw new BizException(ResultCode.USER_EMAIL_EXISTS);
-    }
-
     final String code = stringRedisTemplate.opsForValue().get("code:email:REGISTER:" + userRegisterDto.getEmail());
     if (code == null) {
       throw new BizException(ResultCode.EMAIL_CODE_EXPIRED);
+    }
+
+    final boolean isExist = userService.isExistByEmail(userRegisterDto.getEmail());
+    if (isExist) {
+      throw new BizException(ResultCode.USER_EMAIL_EXISTS);
     }
 
     if (!code.equals(userRegisterDto.getEmailCode())) {
@@ -163,7 +166,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public UserTokenResult refreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
     final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestCommand.getRefreshToken(),
-    refreshTokenRequestCommand.getDeviceId());
+        refreshTokenRequestCommand.getDeviceId());
 
     final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequestCommand);
 
