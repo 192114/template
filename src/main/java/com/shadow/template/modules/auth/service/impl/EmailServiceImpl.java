@@ -14,6 +14,7 @@ import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.common.util.EmailCodeGenerator;
 import com.shadow.template.modules.auth.enums.EmailUsageEnum;
 import com.shadow.template.modules.auth.service.EmailService;
+import com.shadow.template.modules.user.service.UserService;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -25,6 +26,9 @@ public class EmailServiceImpl implements EmailService {
 
   @Autowired
   private StringRedisTemplate stringRedisTemplate;
+
+  @Autowired
+  private UserService userService;
 
   @Value("${spring.mail.username}")
   private String from;
@@ -110,6 +114,27 @@ public class EmailServiceImpl implements EmailService {
   @Override
   public void sendEmail(String to, EmailUsageEnum usage) {
     try {
+      switch (usage) {
+        case REGISTER:
+          if (userService.isExistByEmail(to)) {
+            throw new BizException(ResultCode.USER_EMAIL_EXISTS);
+          }
+          break;
+        case LOGIN:
+          if (!userService.isExistByEmail(to)) {
+            throw new BizException(ResultCode.EMAIL_SEND_FAILED);
+          }
+          break;
+        case RESET_PASSWORD:
+        case FORGET_PASSWORD:
+          if (!userService.isExistByEmail(to)) {
+            throw new BizException(ResultCode.EMAIL_SEND_FAILED);
+          }
+          break;
+        default:
+          break;
+      }
+
       MimeMessage message = javaMailSender.createMimeMessage();
 
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
