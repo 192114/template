@@ -136,6 +136,12 @@
 			<version>1.21.0</version>
 			<scope>compile</scope>
 		</dependency>
+
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webmvc-scalar</artifactId>
+				<version>3.0.1</version>
+			</dependency>
 	</dependencies>
 
 	<build>

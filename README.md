@@ -11,12 +11,66 @@ Spring Boot 模板工程，用于统一技术栈与开发规范。本文档为**
   - Web：Spring WebMVC、Validation
   - 安全：Spring Security、JWT（jjwt）
   - 数据：MyBatis-Plus、MySQL、Flyway、Redis
-  - 其他：Spring Mail、Actuator
+  - 其他：Spring Mail、Actuator、SpringDoc（OpenAPI/Scalar）
 - **质量**：Checkstyle、SpotBugs（含 FindSecBugs），在 `mvn verify` 阶段执行。
 
 ---
 
-## 2. 目录结构与职责
+## 2. 快速开始
+
+### 2.1 环境准备
+
+- 复制 `.env.example` 为 `.env`，填写所需环境变量
+- 确保 MySQL、Redis 已启动
+
+### 2.2 开发环境启动
+
+| 方式 | 说明 |
+|------|------|
+| VS Code 调试 | 使用 `.vscode/launch.json` 中的 `TemplateApplication`，自动加载 `.env` 并设置 `SPRING_PROFILES_ACTIVE=dev` |
+| Maven 命令行 | `mvn spring-boot:run`（默认 dev profile） |
+| 显式指定 profile | `mvn spring-boot:run -Dspring-boot.run.profiles=dev` |
+
+开发环境特性（来自 `application-dev.yml`）：
+- 接口文档（Scalar）：`http://localhost:8023/api/scalar`（详见 2.5 接口文档）
+- 日志级别：DEBUG
+- Actuator 暴露：health、info、metrics、env
+- 数据库连接池：10/2，开启泄漏检测
+
+### 2.3 生产环境启动
+
+| 配置项 | 说明 |
+|--------|------|
+| Profile 激活 | 部署时设置环境变量 `SPRING_PROFILES_ACTIVE=prod` |
+| 配置来源 | `application-prod.yml` 覆盖 base 配置 |
+
+生产环境特性（来自 `application-prod.yml`）：
+- Scalar 文档关闭
+- 日志级别：INFO/WARN，路径 `/var/log/template`
+- Actuator 仅暴露 health、info，`show-details: never`
+- 数据库连接池：20/5，关闭泄漏检测
+- Flyway `clean-disabled: true`
+
+### 2.4 Profile 配置文件说明
+
+| 文件 | 用途 |
+|------|------|
+| `application.yml` | 基础配置，默认 profile 为 dev |
+| `application-dev.yml` | 开发环境覆盖 |
+| `application-prod.yml` | 生产环境覆盖 |
+
+### 2.5 接口文档
+
+开发环境（dev profile）下提供交互式 API 文档与 OpenAPI 规范，便于浏览与调试接口。
+
+| 用途 | 地址 |
+|------|------|
+| Scalar 文档页（浏览、调试接口） | `http://localhost:8023/api/scalar`（或 `/api/scalar.html`，以实际重定向为准） |
+| OpenAPI JSON（规范，供工具/导入） | `http://localhost:8023/api/v3/api-docs` |
+
+---
+
+## 3. 目录结构与职责
 
 根包：`src/main/java/com/shadow/template/`。
 
@@ -99,7 +153,7 @@ com.shadow.template
 
 ---
 
-## 3. 命名规范
+## 4. 命名规范
 
 - **包名**：全小写，单词连写；模块用 `modules.<领域>`，如 `modules.auth`、`modules.user`。
 - **类名**：
@@ -114,11 +168,13 @@ com.shadow.template
 
 ---
 
-## 4. 配置与参数说明
+## 5. 配置与参数说明
 
 主配置：`src/main/resources/application.yml`。自定义配置类：`config/AppProperties.java`（前缀 `app`）。
 
-### 4.1 Spring
+主配置中 `spring.profiles.active` 默认 `dev`，可通过环境变量 `SPRING_PROFILES_ACTIVE` 覆盖。配置文件 `application-{profile}.yml` 会覆盖 base 配置中的同名项。
+
+### 5.1 Spring
 
 | 配置项 | 说明 |
 |--------|------|
@@ -131,7 +187,7 @@ com.shadow.template
 | `spring.data.redis.host` / `port` / `username` / `password` | Redis 连接。 |
 | `spring.mail.*` | 发件：host、port、username、password、protocol（如 smtps）、ssl、smtp 超时与 starttls。 |
 
-### 4.2 Server
+### 5.2 Server
 
 | 配置项 | 说明 |
 |--------|------|
@@ -142,7 +198,7 @@ com.shadow.template
 | `server.tomcat.max-keep-alive-requests` | 单连接最大请求数。 |
 | `server.servlet.session.timeout` | Session 超时，如 `30m`。 |
 
-### 4.3 app（自定义）
+### 5.3 app（自定义）
 
 | 配置项 | 说明 |
 |--------|------|
@@ -156,7 +212,7 @@ com.shadow.template
 | `app.security.cors.allowed-headers` | CORS 允许的请求头。 |
 | `app.security.cors.allow-credentials` | 是否允许携带凭证。 |
 
-### 4.4 其他
+### 5.4 其他
 
 | 配置项 | 说明 |
 |--------|------|
@@ -166,12 +222,13 @@ com.shadow.template
 | `logging.level.*` | 各包日志级别（root、com.shadow.template、org.mybatis 等）。 |
 | `management.endpoints.web.exposure.include` | 暴露的 Actuator 端点，如 `health,info,metrics`。 |
 
-### 4.5 环境变量汇总
+### 5.5 环境变量汇总
 
 以下为 `application.yml` 中使用的环境变量，敏感信息请通过环境变量或外部配置注入。
 
 | 变量名 | 用途 | 必填 | 示例（脱敏） |
 |--------|------|------|--------------|
+| `SPRING_PROFILES_ACTIVE` | 激活的 profile（dev/prod） | 否 | `dev`（默认）、`prod` |
 | `DATABASE_URL` | MySQL JDBC URL | 是 | `jdbc:mysql://localhost:3306/db` |
 | `DATABASE_USERNAME` | 数据库用户名 | 是 | - |
 | `DATABASE_PASSWORD` | 数据库密码 | 是 | - |
@@ -194,7 +251,7 @@ com.shadow.template
 
 ---
 
-## 5. 统一返回与异常
+## 6. 统一返回与异常
 
 - **成功/失败**：统一使用 `Result<T>`（code、message、data）。成功：`Result.success(data)` 或 `Result.success()`；失败：`Result.failure(ResultCode)` 或 `Result.failure(code, message)`。
 - **业务异常**：抛出 `BizException(ResultCode)`，由 `GlobalExceptionHandler` 转换为 HTTP 状态码与 Result 体；状态码与错误码映射见 `HttpStatusMapper`。
@@ -202,7 +259,7 @@ com.shadow.template
 
 ---
 
-## 6. 构建与质量
+## 7. 构建与质量
 
 - **编译与验证**：`mvn clean verify`（含 Checkstyle、SpotBugs）。
 - **Checkstyle**：配置在 `config/checkstyle/checkstyle.xml`（如行宽 120、忽略 import 等）；新代码需通过 `mvn checkstyle:check`。
@@ -210,7 +267,7 @@ com.shadow.template
 
 ---
 
-## 7. 其他约定
+## 8. 其他约定
 
 - **数据库变更**：仅通过 Flyway 脚本，放在 `src/main/resources/db/migration/`，命名 `V<序号>__<描述>.sql`。
 - **日志**：使用 Slf4j；TraceId 由 `TraceIdFilter` 注入 MDC（请求头 `X-Trace-Id` 或自动生成），便于链路追踪。

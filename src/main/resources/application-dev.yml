@@ -1,0 +1,52 @@
+# ============ 开发环境配置 ============
+
+# 文档与调试
+springdoc:
+  api-docs:
+    enabled: true
+
+scalar:
+  enabled: true
+
+# 日志
+logging:
+  level:
+    root: INFO
+    com:
+      shadow:
+        template: DEBUG
+    org:
+      mybatis: DEBUG
+    spring:
+      web: DEBUG
+      security: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# 数据库连接池
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      leak-detection-threshold: 60000
+
+# MyBatis SQL 日志
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# 安全：开发放行文档路径
+app:
+  security:
+    permit-all: /auth/**,/actuator/health,/actuator/health/**,/v3/api-docs/**,/scalar/**,/scalar.html

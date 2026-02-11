@@ -1,0 +1,56 @@
+# ============ 生产环境配置 ============
+
+# 文档：生产关闭
+springdoc:
+  api-docs:
+    enabled: false
+
+scalar:
+  enabled: false
+
+# 日志
+logging:
+  level:
+    root: WARN
+    com:
+      shadow:
+        template: INFO
+    org:
+      mybatis: WARN
+      spring:
+        web: WARN
+        security: WARN
+  file:
+    path: /var/log/template
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}] %-5level %logger{36} - %msg%n"
+
+# Actuator：生产只暴露必要端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+# 数据库连接池
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      leak-detection-threshold: 0
+  flyway:
+    clean-disabled: true
+
+# MyBatis：生产不打印 SQL
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+# 安全：生产不放行文档路径
+app:
+  security:
+    permit-all: /auth/**,/actuator/health,/actuator/health/**
