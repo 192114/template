@@ -1,0 +1,38 @@
+---
+description: Flyway 迁移脚本规范
+globs: "**/db/migration/**/*.sql"
+alwaysApply: false
+---
+
+# Flyway 迁移规范
+
+## 路径与命名
+
+- 固定路径：`src/main/resources/db/migration/`
+- 命名格式：`V<序号>__<描述>.sql`（双下划线分隔）
+- 序号：严格递增整数，不可重复、不可回退
+- 描述：小写、下划线、动词或名词短语
+
+## 示例
+
+- `V1__init.sql` - 初始化
+- `V2__user_session_rotate.sql` - 变更 user_session
+- `V3__add_email_index.sql` - 新增索引
+
+## 不可变性
+
+- 已执行脚本禁止修改；新变更仅能通过新脚本
+- 严禁修改 V1、V2 等已存在的迁移文件
+
+## 禁止
+
+- 修改已有迁移文件
+- 使用 `V1.1__xxx` 等非整数版本
+- 描述使用大写、空格、中文
+- 在迁移内写 `DROP TABLE` 等危险操作（除非明确需求）
+
+## 自检清单
+
+- [ ] 文件名符合 `V<序号>__<描述>.sql`
+- [ ] 序号在当前最大版本之上
+- [ ] 未修改已有迁移文件

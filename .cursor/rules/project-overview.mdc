@@ -22,6 +22,8 @@ alwaysApply: true
 | result-return-standards | 接口返回值、Result 用法 |
 | dto-validation-standards | 写 DTO/Vo、校验注解 |
 | error-code-exception-standards | 新增错误码、异常处理、HttpStatusMapper |
+| flyway-migration-standards | 新增/修改 Flyway 迁移脚本 |
+| database-table-standards | 建表、改表、Entity 与表映射 |
 
 ## 新增 REST 接口流程
 
@@ -30,3 +32,10 @@ alwaysApply: true
 3. 创建 Vo（仅包含需返回的字段）
 4. 在 Controller 中实现，返回 `Result<T>`
 5. Service 中业务失败使用 `throw new BizException(ResultCode.xxx)`
+
+## 数据库变更流程
+
+1. 在 `db/migration` 下新增 `V<n>__<描述>.sql`
+2. 不修改已有迁移文件
+3. 建表符合 database-table-standards
+4. 若有 Entity，确保 @TableName/@TableField 与表结构一致

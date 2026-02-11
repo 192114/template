@@ -1,0 +1,58 @@
+---
+description: 建表与表结构规范
+globs: "**/db/migration/**/*.sql,**/entity/**/*.java"
+alwaysApply: false
+---
+
+# 建表与表结构规范
+
+## 表与列命名
+
+- 表名：小写、snake_case，如 `user_auth`、`user_profile`、`user_session`
+- 列名：小写、snake_case，如 `create_time`、`update_time`、`password_hash`
+
+## 主键与自增
+
+- 主键：单列 `id` BIGINT 或业务主键（如 `user_id`）
+- 自增：仅需自增时用 `AUTO_INCREMENT`
+
+## 时间戳
+
+- 所有表需含 `create_time`，`DEFAULT CURRENT_TIMESTAMP`
+- 有更新场景的表含 `update_time`，`ON UPDATE CURRENT_TIMESTAMP`
+
+## 引擎与字符集
+
+- 所有表：`ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
+
+## 索引命名
+
+- 唯一键：`uk_<table>_<column>` 或 `uk_<column>`，如 `uk_user_auth_email`、`uk_token_hash`
+- 普通索引：`idx_<name>`，如 `idx_user_device`
+
+## 字段类型
+
+- 主键 ID：`BIGINT`
+- 短字符串：`VARCHAR(255)`，长文本：`TEXT`
+- 时间：`DATETIME`，日期：`DATE`
+- 布尔/状态：`TINYINT` 配合 COMMENT
+
+## Entity 映射
+
+- `@TableName("snake_case_table")`
+- `@TableField(value = "snake_case_column")` 映射 camelCase 字段
+- 主键：`@TableId(type = IdType.ASSIGN_ID)` 或 `IdType.AUTO`、`IdType.INPUT`
+
+## 禁止
+
+- 表名/列名使用驼峰或大写
+- 缺少 create_time（有更新场景的表应含 update_time）
+- 使用 MyISAM 或非 utf8mb4
+
+## 自检清单
+
+- [ ] 表名、列名 snake_case
+- [ ] 含 create_time，必要时含 update_time
+- [ ] ENGINE=InnoDB, CHARSET=utf8mb4
+- [ ] 索引命名规范
+- [ ] Entity 与表结构一致
