@@ -1,0 +1,40 @@
+---
+description: 配置规范
+globs: "**/config/**/*.java,**/application*.yml"
+alwaysApply: false
+---
+
+# 配置规范
+
+## 配置类
+
+- `@ConfigurationProperties(prefix = "xxx")`，prefix 与 yml 根 key 一致
+- `@Validated` 启用校验
+- 嵌套结构用静态内部类 + `@Valid`、校验注解
+
+## 敏感项
+
+- 使用 `${ENV_VAR}` 占位符，不写死
+- 密码、secret、token 等禁止硬编码
+
+## 业务配置
+
+- 业务相关配置放 `app` 前缀下
+- 放行路径统一在 `app.security.permit-all`，逗号分隔，由 SecurityConfig 读取
+
+## Profile
+
+- application.yml 为基础配置
+- application-dev.yml、application-prod.yml 按环境覆盖
+- 敏感配置不落 dev 默认值
+
+## 禁止
+
+- 在 yml 中硬编码密码、secret、token
+- 在配置类中写业务逻辑（仅做绑定与校验）
+
+## 自检清单
+
+- [ ] 敏感项用 ${ENV_VAR}
+- [ ] prefix 与 yml 结构一致
+- [ ] 新增放行路径加到 app.security.permit-all

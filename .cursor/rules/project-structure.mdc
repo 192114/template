@@ -15,12 +15,13 @@ alwaysApply: false
 
 | 子包 | 用途 | 示例 |
 |------|------|------|
-| controller | REST 接口类 | AuthController |
+| controller | REST 接口，DTO→Command 转换、调用 Service、返回 Result | AuthController |
 | dto | 请求入参、内部 Command | UserLoginDto, UserLoginCommand |
 | vo | 返回视图对象 | TokenResponseVo |
 | entity | 数据库实体 | UserAuthEntity |
-| mapper | MyBatis Mapper | UserAuthMapper |
-| service, service.impl | 业务逻辑 | AuthService, AuthServiceImpl |
+| mapper | 数据访问，仅与 Entity 交互 | UserAuthMapper |
+| service | 业务入口接口 | AuthService |
+| service.impl | 业务实现，可调用 Mapper、其他 Service | AuthServiceImpl |
 | enums | 枚举 | LoginTypeEnum |
 | constants | 常量 | AuthRegex |
 | validation | 自定义校验 | LoginConstraint |

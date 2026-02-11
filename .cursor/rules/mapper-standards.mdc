@@ -1,0 +1,31 @@
+---
+description: Mapper 数据访问规范
+globs: "**/mapper/**/*.java"
+alwaysApply: false
+---
+
+# Mapper 规范
+
+## 注解与继承
+
+- 必须有 `@Mapper`
+- 继承 `BaseMapper<Entity>`（MyBatis-Plus）
+
+## 职责
+
+- 仅数据访问：select、insert、update、delete
+- 无业务逻辑
+
+## 命名
+
+- `XxxMapper`，与 Entity 对应，如 UserAuthMapper -> UserAuthEntity
+
+## 禁止
+
+- 在 Mapper 中写业务判断、抛 BizException
+- 在 Mapper 中调用其他 Service
+
+## 自检清单
+
+- [ ] 有 @Mapper 且 extends BaseMapper
+- [ ] 无业务逻辑

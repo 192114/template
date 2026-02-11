@@ -1,0 +1,49 @@
+---
+description: Service 层规范
+globs: "**/service/**/*.java"
+alwaysApply: false
+---
+
+# Service 层规范
+
+## 接口与实现
+
+- 接口放 `service` 包，实现放 `service.impl`
+- 实现类必须有 `@Service`
+
+## 方法约定
+
+- 入参：Command、Dto、Entity、简单类型
+- 返回：领域对象、void、基本类型
+- 禁止入参/返回：HttpServletRequest、HttpServletResponse、Result<T>
+
+## 业务失败
+
+- 使用 `throw new BizException(ResultCode.xxx)`
+- 禁止 `return Result.failure(...)` 或构造 Result
+
+## 依赖注入
+
+- 注入 Mapper、其他 Service、Config、工具类
+- 禁止注入 Controller 层组件
+
+## 事务
+
+- 有写操作且跨多表/多 Mapper 时加 `@Transactional`
+
+## 跨模块
+
+- 仅调用其他模块的 Service 接口，不直接调用其 Mapper
+
+## 禁止
+
+- Service 中构造或返回 Result
+- Service 直接依赖 HttpServletRequest 等 Web 类型
+- 在 Service 中写 SQL 字符串（用 Mapper）
+
+## 自检清单
+
+- [ ] 接口在 service 包、实现在 service.impl
+- [ ] 实现类有 @Service
+- [ ] 返回类型非 Result
+- [ ] 业务失败用 BizException

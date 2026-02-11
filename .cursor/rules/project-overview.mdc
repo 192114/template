@@ -24,6 +24,9 @@ alwaysApply: true
 | error-code-exception-standards | 新增错误码、异常处理、HttpStatusMapper |
 | flyway-migration-standards | 新增/修改 Flyway 迁移脚本 |
 | database-table-standards | 建表、改表、Entity 与表映射 |
+| service-standards | Service 接口与实现、业务逻辑编写 |
+| config-standards | 配置类、application.yml、放行路径 |
+| mapper-standards | Mapper 接口、数据访问 |
 
 ## 新增 REST 接口流程
 
