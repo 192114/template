@@ -1,0 +1,32 @@
+---
+description: 项目规范总览与开发流程，作为其他规则的入口
+alwaysApply: true
+---
+
+# 项目规范总览
+
+## 核心约定
+
+- **包结构**：`com.shadow.template.modules.<模块>/controller|dto|vo|entity|service|mapper`
+- **统一响应**：`Result<T>`（code, message, data），见 `common.result.Result`
+- **业务异常**：`throw new BizException(ResultCode.xxx)`，禁止硬编码错误码
+- **入参**：请求体用 DTO + `@Valid`，返回体用 Vo
+- **接口前缀**：context-path `/api`，完整路径如 `/api/auth/login`
+
+## 规则与适用场景
+
+| 规则文件 | 适用场景 |
+|----------|----------|
+| project-structure | 新建模块、移动类、包命名 |
+| api-controller-standards | 写 Controller、定义接口路径 |
+| result-return-standards | 接口返回值、Result 用法 |
+| dto-validation-standards | 写 DTO/Vo、校验注解 |
+| error-code-exception-standards | 新增错误码、异常处理、HttpStatusMapper |
+
+## 新增 REST 接口流程
+
+1. 在 `ResultCode` 中补充业务错误码（若有），并在 `HttpStatusMapper` 中映射
+2. 创建 DTO（含 `@Valid` 与 message）
+3. 创建 Vo（仅包含需返回的字段）
+4. 在 Controller 中实现，返回 `Result<T>`
+5. Service 中业务失败使用 `throw new BizException(ResultCode.xxx)`

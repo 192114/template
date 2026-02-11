@@ -1,0 +1,56 @@
+---
+description: 错误码与异常处理规范
+globs: "**/common/exception/**/*.java,**/common/result/ResultCode.java,**/service/**/*.java"
+alwaysApply: false
+---
+
+# 错误码与异常规范
+
+## 错误码分段
+
+| 范围 | 用途 | 示例 |
+|------|------|------|
+| 0 | 成功 | SUCCESS |
+| 1xxx | 通用错误 | PARAM_ERROR 1000, UNAUTHORIZED 1002, TOKEN_EXPIRED 1004 |
+| 2xxx | 业务错误（按模块） | USER_EMAIL_EXISTS 2001, FAILED_PASSWORD_LOGIN 2005 |
+| 9999 | 系统异常 | SYSTEM_ERROR |
+
+## 新增业务错误码
+
+1. 在 `ResultCode` 中新增枚举常量
+2. 在 `HttpStatusMapper.fromResultCode` 中补充映射
+
+## 业务异常
+
+- 仅使用 `throw new BizException(ResultCode.xxx)`
+- 禁止硬编码数字码或字符串码
+
+## 禁止
+
+- 吞异常、不记录日志
+- 对外直接返回 Exception.getMessage() 或堆栈
+- 在 Controller 用 @ExceptionHandler 处理 BizException（由 GlobalExceptionHandler 统一处理）
+
+## 示例
+
+```java
+// BAD: 硬编码
+throw new BizException(1234, "自定义");
+
+// BAD: 吞异常
+try { ... } catch (Exception e) { return Result.success(); }
+
+// GOOD: 使用 ResultCode
+throw new BizException(ResultCode.USER_EMAIL_EXISTS);
+```
+
+## 参数校验失败
+
+- 由 GlobalExceptionHandler 统一转为 `ResultCode.PARAM_ERROR`，data 为 `List<FieldErrorDetail>`
+- 无需在 Controller 手写参数错误响应
+
+## 自检清单
+
+- [ ] 新增错误码已加入 ResultCode 并在 HttpStatusMapper 映射
+- [ ] 业务失败使用 BizException(ResultCode)
+- [ ] 未吞异常、未直接暴露堆栈

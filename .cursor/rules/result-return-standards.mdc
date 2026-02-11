@@ -1,0 +1,45 @@
+---
+description: 返回值与 Result 规范
+globs: "**/controller/**/*.java,**/common/result/Result.java"
+alwaysApply: false
+---
+
+# 返回值规范
+
+## 强制要求
+
+- 所有 REST 接口必须返回 `Result<T>`，禁止裸类型
+- 成功：`Result.success(data)` 或 `Result.success()`
+- 业务失败：Service 中 `throw new BizException(ResultCode.xxx)`，由 GlobalExceptionHandler 统一封装
+
+## 禁止
+
+- 在 Controller 中 `return Result.failure(...)` 处理业务失败（应抛 BizException）
+- 定义 ApiResult、BaseResult 等与 Result 并存的包装类
+- 返回 `void`、`TokenResponseVo` 等裸类型
+
+## 示例
+
+```java
+// BAD: 裸返回
+@PostMapping("/login")
+public TokenResponseVo login(...) {
+  return tokenResponseVo;
+}
+
+// BAD: Controller 手写失败
+if (user == null) return Result.failure(ResultCode.NOT_FOUND);
+
+// GOOD: 统一包装
+@PostMapping("/login")
+public Result<TokenResponseVo> login(@RequestBody @Valid UserLoginDto dto, ...) {
+  UserTokenResult token = authService.login(command);
+  return Result.success(tokenResponseVo);
+}
+```
+
+## 自检清单
+
+- [ ] 返回类型为 Result<T>
+- [ ] 成功用 Result.success() 或 Result.success(data)
+- [ ] 业务失败通过 BizException，未在 Controller 手写 Result.failure

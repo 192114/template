@@ -1,0 +1,50 @@
+---
+description: DTO/Vo 入参与校验规范
+globs: "**/dto/**/*.java,**/vo/**/*.java"
+alwaysApply: false
+---
+
+# DTO 与校验规范
+
+## 请求体入参
+
+- 使用 DTO + `@Valid`，超过 2 个参数用 DTO 封装
+- Command 仅内部使用，禁止作为 REST 请求体类型
+
+## 校验注解（必须带 message）
+
+- `@NotBlank(message = "xxx不能为空")` 字符串非空
+- `@NotNull(message = "xxx不能为空")` 对象非空
+- `@Email(message = "邮箱格式不正确")`
+- `@Pattern(regexp = ..., message = "...")`
+- `@Size`、`@Min`、`@Max` 等均需带 message
+
+## 禁止
+
+- 只加注解不写 message
+- 在 Vo 中暴露实体主键、内部状态等非约定字段
+
+## 示例
+
+```java
+// BAD: 无 message
+@NotBlank
+private String email;
+
+// GOOD: 带 message
+@Data
+public class SendEmailDto {
+  @NotBlank(message = "邮箱不能为空")
+  @Email(message = "邮箱格式不正确")
+  private String email;
+  @NotBlank(message = "邮件用途不能为空")
+  private String usage;
+}
+```
+
+## 自检清单
+
+- [ ] 请求体使用 DTO + @Valid
+- [ ] 必填字段有 @NotBlank/@NotNull 且带 message
+- [ ] Vo 仅含需返回字段
+- [ ] Command 未作为 @RequestBody 暴露

@@ -1,0 +1,43 @@
+---
+description: 接口路径与 Controller 规范
+globs: "**/controller/**/*.java"
+alwaysApply: false
+---
+
+# 接口与 Controller 规范
+
+## 路径约定
+
+- 全局 context-path：`/api`，完整路径示例：`/api/auth/login`
+- Controller 类：`@RestController` + `@RequestMapping("/xxx")`，路径小写
+- 方法：`@GetMapping`、`@PostMapping`、`@PutMapping`、`@DeleteMapping`、`@PatchMapping`
+
+## 路径风格
+
+- 小写、名词或动词：`/auth`、`/login`、`/register`、`/email`
+- 禁止：大写字母、下划线、在 URL 中暴露敏感信息
+
+## 示例
+
+```java
+// BAD: 路径大写、动词风格不一致
+@RequestMapping("/Auth")
+@GetMapping("/getUser")
+
+// GOOD: 小写、REST 风格
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+  @PostMapping("/email")
+  public Result<Void> send(...) { ... }
+  @PostMapping("/login")
+  public Result<TokenResponseVo> login(...) { ... }
+}
+```
+
+## 自检清单
+
+- [ ] 路径全小写
+- [ ] 使用 @RestController + @RequestMapping
+- [ ] 请求体入参使用 DTO + @Valid
+- [ ] 返回类型为 Result<T>
