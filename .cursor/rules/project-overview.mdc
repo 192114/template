@@ -27,6 +27,7 @@ alwaysApply: true
 | service-standards | Service 接口与实现、业务逻辑编写 |
 | config-standards | 配置类、application.yml、放行路径 |
 | mapper-standards | Mapper 接口、数据访问 |
+| code-generation-standards | 任何代码生成任务，保证仓库整洁 |
 
 ## 新增 REST 接口流程
 
