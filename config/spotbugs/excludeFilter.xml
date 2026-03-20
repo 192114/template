@@ -18,6 +18,24 @@
     <Package name="~.*\.config\..*"/>
   </Match>
 
+  <!-- 顶层配置属性类的可变对象暴露告警 -->
+  <Match>
+    <Class name="~com\.shadow\.template\.config\.(AppProperties|InfraProperties)(\$.*)?"/>
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+  </Match>
+
+  <!-- Spring Bean 构造器注入的“可变对象暴露”误报 -->
+  <Match>
+    <Class name="~com\.shadow\.template\.(modules\.auth\.controller\.AuthController|modules\.auth\.service\.impl\.(AuthServiceImpl|EmailServiceImpl|TokenBlacklistServiceImpl)|security\.JwtAuthenticationFilter)"/>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+
+  <!-- 文本块 HTML 模板触发的格式串换行告警 -->
+  <Match>
+    <Class name="com.shadow.template.modules.auth.service.impl.EmailServiceImpl"/>
+    <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+  </Match>
+
   <!-- 生成代码 -->
   <Match>
     <Source name="~.*/generated/.*"/>

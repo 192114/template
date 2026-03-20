@@ -10,8 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @MapperScan("com.shadow.template.modules.*.mapper")
 public class TemplateApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TemplateApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(TemplateApplication.class, args);
+  }
 
 }

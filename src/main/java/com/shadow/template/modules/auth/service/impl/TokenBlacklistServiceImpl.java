@@ -3,7 +3,6 @@ package com.shadow.template.modules.auth.service.impl;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +14,13 @@ import io.jsonwebtoken.Jws;
 
 @Service
 public class TokenBlacklistServiceImpl implements TokenBlacklistService {
-  @Autowired
-  private StringRedisTemplate stringRedisTemplate;
+  private final StringRedisTemplate stringRedisTemplate;
+  private final JwtTokenProvider jwtTokenProvider;
 
-  @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  public TokenBlacklistServiceImpl(StringRedisTemplate stringRedisTemplate, JwtTokenProvider jwtTokenProvider) {
+    this.stringRedisTemplate = stringRedisTemplate;
+    this.jwtTokenProvider = jwtTokenProvider;
+  }
 
   @Override
   public void addTokenToBlacklist(String token) {

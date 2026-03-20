@@ -4,10 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
@@ -30,27 +30,30 @@ import com.shadow.template.security.JwtTokenProvider;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+  private final UserService userService;
+  private final RefreshTokenService refreshTokenService;
+  private final TokenBlacklistService tokenBlacklistService;
+  private final PasswordEncoder passwordEncoder;
+  private final StringRedisTemplate stringRedisTemplate;
+  private final AppProperties appProperties;
+  private final JwtTokenProvider jwtTokenProvider;
 
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private RefreshTokenService refreshTokenService;
-
-  @Autowired
-  private TokenBlacklistService tokenBlacklistService;
-
-  @Autowired
-  PasswordEncoder passwordEncoder;
-
-  @Autowired
-  private StringRedisTemplate stringRedisTemplate;
-
-  @Autowired
-  private AppProperties appProperties;
-
-  @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  public AuthServiceImpl(
+      UserService userService,
+      RefreshTokenService refreshTokenService,
+      TokenBlacklistService tokenBlacklistService,
+      PasswordEncoder passwordEncoder,
+      StringRedisTemplate stringRedisTemplate,
+      AppProperties appProperties,
+      JwtTokenProvider jwtTokenProvider) {
+    this.userService = userService;
+    this.refreshTokenService = refreshTokenService;
+    this.tokenBlacklistService = tokenBlacklistService;
+    this.passwordEncoder = passwordEncoder;
+    this.stringRedisTemplate = stringRedisTemplate;
+    this.appProperties = appProperties;
+    this.jwtTokenProvider = jwtTokenProvider;
+  }
 
   private UserTokenResult generateToken(Long userId, UserLoginCommand userLoginCommand) {
     // 如果再次登录 需撤销之前的登录
@@ -69,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
     createSessionDto.setUserId(userId);
     createSessionDto.setRefreshToken(refreshToken);
     createSessionDto.setIpAddress(userLoginCommand.getIpAddress());
-    createSessionDto.setUseragent(userLoginCommand.getUseragent());
+    createSessionDto.setUserAgent(userLoginCommand.getUserAgent());
     createSessionDto.setDeviceId(userLoginCommand.getDeviceId());
     refreshTokenService.createSession(createSessionDto);
 
@@ -181,6 +184,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
+  @Transactional
   public void logout(UserLogoutCommand userLogoutDto) {
     refreshTokenService.revoke(userLogoutDto.getRefreshToken(), userLogoutDto.getDeviceId());
     tokenBlacklistService.addTokenToBlacklist(userLogoutDto.getToken());

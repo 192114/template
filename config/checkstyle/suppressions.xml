@@ -5,7 +5,7 @@
 
 <suppressions>
   <!-- 生成代码 -->
-  <suppress files=".*[\\/]generated[\\/].*"/>
+  <suppress files=".*[\\/]generated[\\/].*" checks=".*"/>
 
   <!-- DTO/VO/Entity: 放宽字段可见性 + Javadoc -->
   <suppress files=".*[\\/]dto[\\/].*" checks="VisibilityModifier|JavadocType|JavadocMethod"/>

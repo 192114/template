@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JwtTokenProvider {
+public final class JwtTokenProvider {
   private final SecretKey key;
   private final String issuer;
   private final long expireSeconds;

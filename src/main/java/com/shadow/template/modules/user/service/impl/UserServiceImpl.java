@@ -1,6 +1,5 @@
 package com.shadow.template.modules.user.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +16,16 @@ import com.shadow.template.modules.user.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
-  @Autowired
-  UserAuthMapper userAuthMapper;
+  private final UserAuthMapper userAuthMapper;
+  private final UserProfileMapper userProfileMapper;
+  private final PasswordEncoder passwordEncoder;
 
-  @Autowired
-  UserProfileMapper userProfileMapper;
-
-  @Autowired
-  PasswordEncoder passwordEncoder;
+  public UserServiceImpl(UserAuthMapper userAuthMapper, UserProfileMapper userProfileMapper,
+      PasswordEncoder passwordEncoder) {
+    this.userAuthMapper = userAuthMapper;
+    this.userProfileMapper = userProfileMapper;
+    this.passwordEncoder = passwordEncoder;
+  }
 
   @Override
   public boolean isExistByEmail(String email) {

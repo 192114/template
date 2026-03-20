@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,18 +26,17 @@ import io.jsonwebtoken.JwtException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-  @Autowired
-  @Qualifier("handlerExceptionResolver")
-  private HandlerExceptionResolver resolver;
-
-  @Autowired
-  private TokenBlacklistService tokenBlacklistService;
-
+  private final HandlerExceptionResolver resolver;
+  private final TokenBlacklistService tokenBlacklistService;
   private final JwtTokenProvider tokenProvider;
 
-  public JwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
+  public JwtAuthenticationFilter(
+      JwtTokenProvider tokenProvider,
+      TokenBlacklistService tokenBlacklistService,
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
     this.tokenProvider = tokenProvider;
+    this.tokenBlacklistService = tokenBlacklistService;
+    this.resolver = resolver;
   }
 
   @Override

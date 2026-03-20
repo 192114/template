@@ -1,6 +1,5 @@
 package com.shadow.template.modules.auth.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,14 +29,15 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-  @Autowired
-  private AuthService authService;
+  private final AuthService authService;
+  private final EmailService mailService;
+  private final AppProperties appProperties;
 
-  @Autowired
-  private EmailService mailService;
-
-  @Autowired
-  private AppProperties appProperties;
+  public AuthController(AuthService authService, EmailService mailService, AppProperties appProperties) {
+    this.authService = authService;
+    this.mailService = mailService;
+    this.appProperties = appProperties;
+  }
 
   @PostMapping("/email")
   public Result<Void> send(@RequestBody @Valid SendEmailDto sendEmailDto) {
@@ -62,7 +62,7 @@ public class AuthController {
     userLoginCommand.setLoginType(userLoginDto.getLoginType());
     userLoginCommand.setEmailCode(userLoginDto.getEmailCode());
     userLoginCommand.setIpAddress(RequestUtils.getIpAddress(request));
-    userLoginCommand.setUseragent(RequestUtils.getUserAgent(request));
+    userLoginCommand.setUserAgent(RequestUtils.getUserAgent(request));
     userLoginCommand.setDeviceId(RequestUtils.getDeviceId(request));
     UserTokenResult userTokenDto = authService.login(userLoginCommand);
 
@@ -82,13 +82,13 @@ public class AuthController {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
 
     final String deviceId = RequestUtils.getDeviceId(request);
-    final String useragent = RequestUtils.getUserAgent(request);
+    final String userAgent = RequestUtils.getUserAgent(request);
     final String ipAddress = RequestUtils.getIpAddress(request);
 
     final RefreshTokenRequestCommand refreshTokenRequestCommand = new RefreshTokenRequestCommand();
     refreshTokenRequestCommand.setRefreshToken(refreshToken);
     refreshTokenRequestCommand.setDeviceId(deviceId);
-    refreshTokenRequestCommand.setUserAgent(useragent);
+    refreshTokenRequestCommand.setUserAgent(userAgent);
     refreshTokenRequestCommand.setIpAddress(ipAddress);
 
     final UserTokenResult userTokenDto = authService.refreshToken(refreshTokenRequestCommand);

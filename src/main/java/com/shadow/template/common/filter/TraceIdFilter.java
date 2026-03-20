@@ -23,8 +23,10 @@ public class TraceIdFilter implements Filter {
       throws IOException, ServletException {
 
     try {
-      HttpServletRequest httpRequest = (HttpServletRequest) request;
-      String traceId = httpRequest.getHeader(TRACE_ID_HEADER);
+      String traceId = null;
+      if (request instanceof HttpServletRequest httpRequest) {
+        traceId = httpRequest.getHeader(TRACE_ID_HEADER);
+      }
       if (traceId == null || traceId.isBlank()) {
         traceId = UUID.randomUUID().toString().replace("-", "");
       }

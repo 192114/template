@@ -9,6 +9,6 @@ public class UserLoginCommand {
   private String loginType;
   private String emailCode;
   private String ipAddress;
-  private String useragent;
+  private String userAgent;
   private String deviceId;
 }
