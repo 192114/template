@@ -6,6 +6,7 @@ import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.modules.auth.dto.CreateSessionCommand;
 import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.dto.RefreshTokenRotateResult;
 import com.shadow.template.modules.auth.entity.UserSessionEntity;
 import com.shadow.template.modules.auth.mapper.UserSessionMapper;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
@@ -50,28 +51,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   }
 
   @Override
-  public Long verifyAndGetUserId(String refreshToken, String deviceId) {
-    final UserSessionEntity userSessionEntity =
-        getUserSessionEntityByRefreshToken(refreshToken, deviceId);
-
-    final LocalDateTime expireTime = userSessionEntity.getExpireTime();
-    final boolean revoked = userSessionEntity.getRevoked();
-
-    if (revoked) {
-      throw new BizException(ResultCode.TOKEN_INVALID);
-    }
-
-    // token 过期了
-    if (expireTime.isBefore(LocalDateTime.now())) {
-      throw new BizException(ResultCode.TOKEN_EXPIRED);
-    }
-
-    return userSessionEntity.getUserId();
-  }
-
-  @Override
   @Transactional
-  public String rotateRefreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
+  public RefreshTokenRotateResult rotateRefreshToken(
+      RefreshTokenRequestCommand refreshTokenRequestCommand) {
     final UserSessionEntity userSessionEntity =
         getUserSessionEntityByRefreshToken(
             refreshTokenRequestCommand.getRefreshToken(), refreshTokenRequestCommand.getDeviceId());
@@ -90,9 +72,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
       throw new BizException(ResultCode.TOKEN_EXPIRED);
     }
 
-    userSessionEntity.setRevoked(true);
-
-    userSessionMapper.updateById(userSessionEntity);
+    final int affected = userSessionMapper.revokeIfActive(parentId, LocalDateTime.now());
+    if (affected != 1) {
+      // 并发重复刷新或会话已被撤销
+      throw new BizException(ResultCode.TOKEN_INVALID);
+    }
 
     final String nextRefreshToken = generateRefreshToken();
 
@@ -108,17 +92,17 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     createSession(createSessionCommand);
 
-    return nextRefreshToken;
+    final RefreshTokenRotateResult result = new RefreshTokenRotateResult();
+    result.setUserId(userId);
+    result.setRefreshToken(nextRefreshToken);
+    return result;
   }
 
   @Override
   public void revoke(String refreshToken, String deviceId) {
     UserSessionEntity userSessionEntity =
         getUserSessionEntityByRefreshToken(refreshToken, deviceId);
-
-    userSessionEntity.setRevoked(true);
-    userSessionEntity.setRevokedTime(LocalDateTime.now());
-    userSessionMapper.updateById(userSessionEntity);
+    userSessionMapper.revokeIfActive(userSessionEntity.getId(), LocalDateTime.now());
   }
 
   @Override
@@ -130,9 +114,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     if (userSessionEntity == null) {
       return;
     }
-    userSessionEntity.setRevoked(true);
-    userSessionEntity.setRevokedTime(LocalDateTime.now());
-    userSessionMapper.updateById(userSessionEntity);
+    userSessionMapper.revokeIfActive(userSessionEntity.getId(), LocalDateTime.now());
   }
 
   @Override

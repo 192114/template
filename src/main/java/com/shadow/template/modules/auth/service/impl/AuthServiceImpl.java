@@ -5,6 +5,7 @@ import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.config.AppProperties;
 import com.shadow.template.modules.auth.dto.CreateSessionCommand;
 import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.dto.RefreshTokenRotateResult;
 import com.shadow.template.modules.auth.dto.UserLoginCommand;
 import com.shadow.template.modules.auth.dto.UserLogoutCommand;
 import com.shadow.template.modules.auth.dto.UserRegisterDto;
@@ -168,19 +169,16 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
+  @Transactional
   public UserTokenResult refreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
-    final Long userId =
-        refreshTokenService.verifyAndGetUserId(
-            refreshTokenRequestCommand.getRefreshToken(), refreshTokenRequestCommand.getDeviceId());
-
-    final String nextRefreshToken =
+    final RefreshTokenRotateResult rotateResult =
         refreshTokenService.rotateRefreshToken(refreshTokenRequestCommand);
 
-    final String token = jwtTokenProvider.generateToken(userId);
+    final String token = jwtTokenProvider.generateToken(rotateResult.getUserId());
 
     final UserTokenResult userTokenDto = new UserTokenResult();
 
-    userTokenDto.setRefreshToken(nextRefreshToken);
+    userTokenDto.setRefreshToken(rotateResult.getRefreshToken());
     userTokenDto.setToken(token);
 
     return userTokenDto;

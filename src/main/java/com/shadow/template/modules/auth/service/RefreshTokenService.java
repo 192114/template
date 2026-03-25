@@ -2,13 +2,13 @@ package com.shadow.template.modules.auth.service;
 
 import com.shadow.template.modules.auth.dto.CreateSessionCommand;
 import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.dto.RefreshTokenRotateResult;
 
 public interface RefreshTokenService {
   String generateRefreshToken();
 
-  Long verifyAndGetUserId(String refreshToken, String deviceId);
-
-  String rotateRefreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand);
+  RefreshTokenRotateResult rotateRefreshToken(
+      RefreshTokenRequestCommand refreshTokenRequestCommand);
 
   void revoke(String refreshToken, String deviceId);
 

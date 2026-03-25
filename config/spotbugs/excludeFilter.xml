@@ -30,6 +30,11 @@
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
 
+  <Match>
+    <Class name="com.shadow.template.common.security.RateLimitService"/>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+
   <!-- 文本块 HTML 模板触发的格式串换行告警 -->
   <Match>
     <Class name="com.shadow.template.modules.auth.service.impl.EmailServiceImpl"/>

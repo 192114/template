@@ -3,12 +3,16 @@ package com.shadow.template.common.exception;
 import com.shadow.template.common.result.FieldErrorDetail;
 import com.shadow.template.common.result.Result;
 import com.shadow.template.common.result.ResultCode;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -76,6 +80,27 @@ public class GlobalExceptionHandler {
         .body(
             new Result<>(
                 ResultCode.PARAM_ERROR.getCode(), ResultCode.PARAM_ERROR.getMessage(), errors));
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<Result<Void>> handleAuthenticationException(AuthenticationException ex) {
+    log.warn("authentication exception: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(Result.failure(ResultCode.UNAUTHORIZED));
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<Result<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+    log.warn("access denied: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Result.failure(ResultCode.FORBIDDEN));
+  }
+
+  @ExceptionHandler(JwtException.class)
+  public ResponseEntity<Result<Void>> handleJwtException(JwtException ex) {
+    final ResultCode resultCode =
+        ex instanceof ExpiredJwtException ? ResultCode.TOKEN_EXPIRED : ResultCode.TOKEN_INVALID;
+    log.warn("jwt exception: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.failure(resultCode));
   }
 
   @ExceptionHandler(Exception.class)

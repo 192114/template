@@ -259,6 +259,60 @@ com.shadow.template
 
 ---
 
+## 7. 安全与认证策略（当前实现）
+
+### 7.1 登录与验证码限流
+
+认证相关接口已接入 Redis 计数限流（超限返回 `TOO_MANY_REQUESTS` / HTTP 429）：
+
+| 接口 | 维度 | 阈值 |
+|------|------|------|
+| `POST /auth/email` | `IP` | 1 分钟 10 次 |
+| `POST /auth/email` | 目标邮箱 | 10 分钟 5 次 |
+| `POST /auth/login` | `IP` | 1 分钟 20 次 |
+| `POST /auth/login` | 邮箱 | 5 分钟 10 次 |
+| `POST /auth/refresh` | `deviceId + IP` | 1 分钟 30 次 |
+
+> 实现位置：`common/security/RateLimitService` 与 `AuthController`。
+
+### 7.2 Refresh Token 轮换与并发安全
+
+- 刷新令牌采用**一次一换（rotation）**。
+- 刷新时先按 `token_hash + device_id` 查会话，再使用条件更新 `revokeIfActive(id, revokedTime)` 原子撤销旧会话。
+- 若并发请求导致旧会话已被撤销，后续请求会返回 `TOKEN_INVALID`，避免同一个 refresh token 被重复成功使用。
+
+### 7.3 参数与会话校验
+
+- `refresh` 与 `logout` 接口会强制校验 `refreshToken`、`deviceId`、`Authorization Bearer token` 非空。
+- `logout` 成功后会删除 `refreshToken` Cookie（`Set-Cookie: Max-Age=0`）。
+
+### 7.4 Cookie 安全属性
+
+`refreshToken` Cookie 默认：
+
+- `HttpOnly=true`
+- `Secure=true`
+- `SameSite=Strict`
+- `Path=/`
+
+> 生产环境建议：若前后端跨站点通信，按实际场景评估 `SameSite=None`（配合 `Secure=true`）。
+
+### 7.5 异常处理分层
+
+`GlobalExceptionHandler` 已区分处理：
+
+- `BizException`（业务异常）
+- 参数校验异常：`MethodArgumentNotValidException` / `BindException` / `ConstraintViolationException`
+- 认证授权异常：`AuthenticationException` / `AccessDeniedException`
+- JWT 异常：`JwtException`（含 `ExpiredJwtException`）
+- 兜底：`Exception`
+
+新增错误码：
+
+- `TOO_MANY_REQUESTS(1006)` -> HTTP 429
+
+---
+
 ## 7. 构建与质量
 
 - **编译与验证**：`mvn clean verify`（含 Checkstyle、SpotBugs）。

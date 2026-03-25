@@ -29,6 +29,9 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
     Instant expiration = decodedJWT.getPayload().getExpiration().toInstant();
 
     long ttlMillis = expiration.toEpochMilli() - Instant.now().toEpochMilli();
+    if (ttlMillis <= 0) {
+      return;
+    }
 
     stringRedisTemplate.opsForValue().set(key, "1", ttlMillis, TimeUnit.MILLISECONDS);
   }

@@ -14,6 +14,7 @@ public enum ResultCode {
   FORBIDDEN(1003, "禁止访问"),
   TOKEN_EXPIRED(1004, "登录已过期"),
   TOKEN_INVALID(1005, "令牌无效"),
+  TOO_MANY_REQUESTS(1006, "请求过于频繁，请稍后重试"),
   SYSTEM_ERROR(9999, "系统异常"),
 
   // 业务错误码（示例）

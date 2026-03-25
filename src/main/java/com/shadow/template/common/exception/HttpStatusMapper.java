@@ -16,6 +16,7 @@ public final class HttpStatusMapper {
       case NOT_FOUND -> HttpStatus.NOT_FOUND;
       case UNAUTHORIZED, TOKEN_EXPIRED, TOKEN_INVALID -> HttpStatus.UNAUTHORIZED;
       case FORBIDDEN -> HttpStatus.FORBIDDEN;
+      case TOO_MANY_REQUESTS -> HttpStatus.TOO_MANY_REQUESTS;
       case SYSTEM_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
 
       // 业务错误
