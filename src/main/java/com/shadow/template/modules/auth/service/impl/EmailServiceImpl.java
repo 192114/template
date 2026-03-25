@@ -1,22 +1,19 @@
 package com.shadow.template.modules.auth.service.impl;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
-
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.common.util.EmailCodeGenerator;
 import com.shadow.template.modules.auth.enums.EmailUsageEnum;
 import com.shadow.template.modules.auth.service.EmailService;
 import com.shadow.template.modules.user.service.UserService;
-
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -36,9 +33,7 @@ public class EmailServiceImpl implements EmailService {
     this.from = from;
   }
 
-  /**
-   * 构建 HTML 邮件内容
-   */
+  /** 构建 HTML 邮件内容 */
   private String buildHtmlContent(String code) {
     return """
         <!DOCTYPE html>
@@ -119,7 +114,8 @@ public class EmailServiceImpl implements EmailService {
         </div>
         </body>
         </html>
-        """.formatted(code);
+        """
+        .formatted(code);
   }
 
   @Override
@@ -164,8 +160,9 @@ public class EmailServiceImpl implements EmailService {
 
       javaMailSender.send(message);
 
-      stringRedisTemplate.opsForValue().set(
-          "code:email:" + usage.name() + ":" + to, emialCode, 5, TimeUnit.MINUTES);
+      stringRedisTemplate
+          .opsForValue()
+          .set("code:email:" + usage.name() + ":" + to, emialCode, 5, TimeUnit.MINUTES);
     } catch (MessagingException e) {
       throw new BizException(ResultCode.EMAIL_SEND_FAILED);
     }

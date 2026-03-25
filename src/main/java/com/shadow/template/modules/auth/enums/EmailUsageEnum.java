@@ -2,7 +2,6 @@ package com.shadow.template.modules.auth.enums;
 
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
-
 import lombok.Getter;
 
 @Getter

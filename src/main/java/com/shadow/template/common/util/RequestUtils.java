@@ -1,9 +1,8 @@
 package com.shadow.template.common.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 public class RequestUtils {
   public static String getDeviceId(HttpServletRequest request) {

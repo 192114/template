@@ -2,9 +2,8 @@
 package com.shadow.template.common.exception;
 
 import com.shadow.template.common.result.ResultCode;
-import org.springframework.http.HttpStatus;
-
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class BizException extends RuntimeException {
@@ -17,6 +16,11 @@ public class BizException extends RuntimeException {
     this.httpStatus = HttpStatusMapper.fromResultCode(resultCode);
   }
 
-  public ResultCode getResultCode() { return resultCode; }
-  public HttpStatus getHttpStatus() { return httpStatus; }
+  public ResultCode getResultCode() {
+    return resultCode;
+  }
+
+  public HttpStatus getHttpStatus() {
+    return httpStatus;
+  }
 }

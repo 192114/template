@@ -4,8 +4,7 @@ import com.shadow.template.common.result.ResultCode;
 import org.springframework.http.HttpStatus;
 
 public final class HttpStatusMapper {
-  private HttpStatusMapper() {
-  }
+  private HttpStatusMapper() {}
 
   public static HttpStatus fromResultCode(ResultCode code) {
     return switch (code) {

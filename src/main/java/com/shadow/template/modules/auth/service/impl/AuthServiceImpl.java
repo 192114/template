@@ -1,14 +1,5 @@
 package com.shadow.template.modules.auth.service.impl;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.time.LocalDateTime;
-
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.config.AppProperties;
@@ -27,6 +18,13 @@ import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.enums.UserStatusEnum;
 import com.shadow.template.modules.user.service.UserService;
 import com.shadow.template.security.JwtTokenProvider;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDateTime;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -66,7 +64,8 @@ public class AuthServiceImpl implements AuthService {
 
     final CreateSessionCommand createSessionDto = new CreateSessionCommand();
 
-    final LocalDateTime expireTime = LocalDateTime.now().plusDays(appProperties.getRefresh().getExpireDays());
+    final LocalDateTime expireTime =
+        LocalDateTime.now().plusDays(appProperties.getRefresh().getExpireDays());
 
     createSessionDto.setExpireTime(expireTime);
     createSessionDto.setUserId(userId);
@@ -128,7 +127,8 @@ public class AuthServiceImpl implements AuthService {
         throw new BizException(ResultCode.USER_DISABLED);
       }
 
-      if (!MessageDigest.isEqual(code.getBytes(StandardCharsets.UTF_8),
+      if (!MessageDigest.isEqual(
+          code.getBytes(StandardCharsets.UTF_8),
           userLoginCommand.getEmailCode().getBytes(StandardCharsets.UTF_8))) {
         throw new BizException(ResultCode.FAILED_EMAILCODE_LOGIN);
       }
@@ -144,7 +144,8 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public void register(UserRegisterDto userRegisterDto) {
-    final String code = stringRedisTemplate.opsForValue().get("code:email:REGISTER:" + userRegisterDto.getEmail());
+    final String code =
+        stringRedisTemplate.opsForValue().get("code:email:REGISTER:" + userRegisterDto.getEmail());
     if (code == null) {
       throw new BizException(ResultCode.EMAIL_CODE_EXPIRED);
     }
@@ -168,10 +169,12 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public UserTokenResult refreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
-    final Long userId = refreshTokenService.verifyAndGetUserId(refreshTokenRequestCommand.getRefreshToken(),
-        refreshTokenRequestCommand.getDeviceId());
+    final Long userId =
+        refreshTokenService.verifyAndGetUserId(
+            refreshTokenRequestCommand.getRefreshToken(), refreshTokenRequestCommand.getDeviceId());
 
-    final String nextRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequestCommand);
+    final String nextRefreshToken =
+        refreshTokenService.rotateRefreshToken(refreshTokenRequestCommand);
 
     final String token = jwtTokenProvider.generateToken(userId);
 

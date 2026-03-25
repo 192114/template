@@ -1,7 +1,6 @@
 package com.shadow.template.modules.auth.dto;
 
 import java.time.LocalDateTime;
-
 import lombok.Data;
 
 @Data

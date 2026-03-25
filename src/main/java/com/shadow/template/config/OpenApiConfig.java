@@ -11,9 +11,10 @@ public class OpenApiConfig {
   @Bean
   OpenAPI openAPI() {
     return new OpenAPI()
-        .info(new Info()
-            .title("Template API")
-            .description("Spring Boot 模板工程 REST API 文档")
-            .version("0.0.1"));
+        .info(
+            new Info()
+                .title("Template API")
+                .description("Spring Boot 模板工程 REST API 文档")
+                .version("0.0.1"));
   }
 }

@@ -3,11 +3,10 @@ package com.shadow.template.config;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "spring")
@@ -15,41 +14,32 @@ import lombok.Setter;
 @Setter
 public class InfraProperties {
 
-  @Valid
-  private Datasource datasource = new Datasource();
+  @Valid private Datasource datasource = new Datasource();
 
-  @Valid
-  private Mail mail = new Mail();
+  @Valid private Mail mail = new Mail();
 
   @Getter
   @Setter
   public static class Datasource {
-    @NotBlank
-    private String url;
+    @NotBlank private String url;
 
-    @NotBlank
-    private String username;
+    @NotBlank private String username;
 
-    @NotBlank
-    private String password;
+    @NotBlank private String password;
 
-    @NotBlank
-    private String driverClassName;
+    @NotBlank private String driverClassName;
   }
 
   @Getter
   @Setter
   public static class Mail {
-    @NotBlank
-    private String host;
+    @NotBlank private String host;
 
     @Min(1)
     private int port;
 
-    @NotBlank
-    private String username;
+    @NotBlank private String username;
 
-    @NotBlank
-    private String password;
+    @NotBlank private String password;
   }
 }

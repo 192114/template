@@ -1,8 +1,10 @@
 package com.shadow.template.config;
 
+import com.shadow.template.security.JwtAuthenticationFilter;
+import com.shadow.template.security.RestAccessDeniedHandler;
+import com.shadow.template.security.RestAuthenticationEntryPoint;
 import java.util.Arrays;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,14 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.shadow.template.security.JwtAuthenticationFilter;
-import com.shadow.template.security.RestAccessDeniedHandler;
-import com.shadow.template.security.RestAuthenticationEntryPoint;
 
 @Configuration
 public class SecurityConfig {
@@ -51,25 +48,31 @@ public class SecurityConfig {
       HttpSecurity http,
       JwtAuthenticationFilter jwtAuthenticationFilter,
       RestAuthenticationEntryPoint authenticationEntryPoint,
-      RestAccessDeniedHandler accessDeniedHandler) throws Exception {
+      RestAccessDeniedHandler accessDeniedHandler)
+      throws Exception {
 
-    String[] whitelist = Arrays.stream(permitAll.split(","))
-        .map(String::trim)
-        .filter(s -> !s.isEmpty())
-        .toArray(String[]::new);
+    String[] whitelist =
+        Arrays.stream(permitAll.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toArray(String[]::new);
 
-    http
-        .csrf(csrf -> csrf.disable())
+    http.csrf(csrf -> csrf.disable())
         .httpBasic(httpBasic -> httpBasic.disable())
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .cors(Customizer.withDefaults())
-        .exceptionHandling(ex -> ex
-            .authenticationEntryPoint(authenticationEntryPoint)
-            .accessDeniedHandler(accessDeniedHandler))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(whitelist).permitAll()
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .anyRequest().authenticated())
+        .exceptionHandling(
+            ex ->
+                ex.authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(whitelist)
+                    .permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
@@ -89,9 +92,6 @@ public class SecurityConfig {
   }
 
   private List<String> split(String value) {
-    return Arrays.stream(value.split(","))
-        .map(String::trim)
-        .filter(s -> !s.isEmpty())
-        .toList();
+    return Arrays.stream(value.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
   }
 }

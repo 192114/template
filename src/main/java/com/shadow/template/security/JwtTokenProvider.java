@@ -1,15 +1,14 @@
 package com.shadow.template.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import javax.crypto.SecretKey;
 import java.util.UUID;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,11 +44,7 @@ public final class JwtTokenProvider {
 
   // 解析 token
   public Jws<Claims> parseToken(String token) throws JwtException {
-    return Jwts.parser()
-        .verifyWith(key)
-        .requireIssuer(issuer)
-        .build()
-        .parseSignedClaims(token);
+    return Jwts.parser().verifyWith(key).requireIssuer(issuer).build().parseSignedClaims(token);
   }
 
   // 获取 subject userId

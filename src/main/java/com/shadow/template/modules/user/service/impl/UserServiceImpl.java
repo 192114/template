@@ -1,8 +1,5 @@
 package com.shadow.template.modules.user.service.impl;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
@@ -13,6 +10,8 @@ import com.shadow.template.modules.user.enums.UserStatusEnum;
 import com.shadow.template.modules.user.mapper.UserAuthMapper;
 import com.shadow.template.modules.user.mapper.UserProfileMapper;
 import com.shadow.template.modules.user.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -20,7 +19,9 @@ public class UserServiceImpl implements UserService {
   private final UserProfileMapper userProfileMapper;
   private final PasswordEncoder passwordEncoder;
 
-  public UserServiceImpl(UserAuthMapper userAuthMapper, UserProfileMapper userProfileMapper,
+  public UserServiceImpl(
+      UserAuthMapper userAuthMapper,
+      UserProfileMapper userProfileMapper,
       PasswordEncoder passwordEncoder) {
     this.userAuthMapper = userAuthMapper;
     this.userProfileMapper = userProfileMapper;

@@ -5,10 +5,9 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.nio.charset.StandardCharsets;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -18,23 +17,18 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 public class AppProperties {
 
-  @Valid
-  private Jwt jwt = new Jwt();
+  @Valid private Jwt jwt = new Jwt();
 
-  @Valid
-  private Security security = new Security();
+  @Valid private Security security = new Security();
 
-  @Valid
-  private Refresh refresh = new Refresh();
+  @Valid private Refresh refresh = new Refresh();
 
   @Getter
   @Setter
   public static class Jwt {
-    @NotBlank
-    private String secret;
+    @NotBlank private String secret;
 
-    @NotBlank
-    private String issuer;
+    @NotBlank private String issuer;
 
     @Min(60)
     private long expireSeconds;
@@ -55,26 +49,20 @@ public class AppProperties {
   @Getter
   @Setter
   public static class Security {
-    @NotBlank
-    private String permitAll;
+    @NotBlank private String permitAll;
 
-    @Valid
-    private Cors cors = new Cors();
-    
+    @Valid private Cors cors = new Cors();
+
     @Getter
     @Setter
     public static class Cors {
-      @NotBlank
-      private String allowedOrigins;
+      @NotBlank private String allowedOrigins;
 
-      @NotBlank
-      private String allowedMethods;
+      @NotBlank private String allowedMethods;
 
-      @NotBlank
-      private String allowedHeaders;
+      @NotBlank private String allowedHeaders;
 
-      @NotNull
-      private Boolean allowCredentials;
+      @NotNull private Boolean allowCredentials;
     }
   }
 }

@@ -1,13 +1,5 @@
 package com.shadow.template.modules.auth.service.impl;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.Base64;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.shadow.template.common.exception.BizException;
@@ -17,6 +9,12 @@ import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
 import com.shadow.template.modules.auth.entity.UserSessionEntity;
 import com.shadow.template.modules.auth.mapper.UserSessionMapper;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
@@ -28,12 +26,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     this.userSessionMapper = userSessionMapper;
   }
 
-  private UserSessionEntity getUserSessionEntityByRefreshToken(String refreshToken, String deviceId) {
+  private UserSessionEntity getUserSessionEntityByRefreshToken(
+      String refreshToken, String deviceId) {
     final String refreshtokenHash = DigestUtils.sha256Hex(refreshToken);
     LambdaQueryWrapper<UserSessionEntity> qw = Wrappers.lambdaQuery();
-    UserSessionEntity userSessionEntity = userSessionMapper
-        .selectOne(
-            qw.eq(UserSessionEntity::getTokenHash, refreshtokenHash).eq(UserSessionEntity::getDeviceId, deviceId));
+    UserSessionEntity userSessionEntity =
+        userSessionMapper.selectOne(
+            qw.eq(UserSessionEntity::getTokenHash, refreshtokenHash)
+                .eq(UserSessionEntity::getDeviceId, deviceId));
 
     if (userSessionEntity == null) {
       throw new BizException(ResultCode.TOKEN_INVALID);
@@ -51,7 +51,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
   @Override
   public Long verifyAndGetUserId(String refreshToken, String deviceId) {
-    final UserSessionEntity userSessionEntity = getUserSessionEntityByRefreshToken(refreshToken, deviceId);
+    final UserSessionEntity userSessionEntity =
+        getUserSessionEntityByRefreshToken(refreshToken, deviceId);
 
     final LocalDateTime expireTime = userSessionEntity.getExpireTime();
     final boolean revoked = userSessionEntity.getRevoked();
@@ -71,9 +72,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   @Override
   @Transactional
   public String rotateRefreshToken(RefreshTokenRequestCommand refreshTokenRequestCommand) {
-    final UserSessionEntity userSessionEntity = getUserSessionEntityByRefreshToken(
-        refreshTokenRequestCommand.getRefreshToken(),
-        refreshTokenRequestCommand.getDeviceId());
+    final UserSessionEntity userSessionEntity =
+        getUserSessionEntityByRefreshToken(
+            refreshTokenRequestCommand.getRefreshToken(), refreshTokenRequestCommand.getDeviceId());
 
     final LocalDateTime expireTime = userSessionEntity.getExpireTime();
     final Long parentId = userSessionEntity.getId();
@@ -112,7 +113,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
   @Override
   public void revoke(String refreshToken, String deviceId) {
-    UserSessionEntity userSessionEntity = getUserSessionEntityByRefreshToken(refreshToken, deviceId);
+    UserSessionEntity userSessionEntity =
+        getUserSessionEntityByRefreshToken(refreshToken, deviceId);
 
     userSessionEntity.setRevoked(true);
     userSessionEntity.setRevokedTime(LocalDateTime.now());

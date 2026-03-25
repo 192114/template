@@ -1,8 +1,5 @@
 package com.shadow.template.modules.auth.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.shadow.template.common.result.Result;
 import com.shadow.template.common.util.CookieUtils;
 import com.shadow.template.common.util.RequestUtils;
@@ -18,13 +15,13 @@ import com.shadow.template.modules.auth.enums.EmailUsageEnum;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.EmailService;
 import com.shadow.template.modules.auth.vo.TokenResponseVo;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,7 +30,8 @@ public class AuthController {
   private final EmailService mailService;
   private final AppProperties appProperties;
 
-  public AuthController(AuthService authService, EmailService mailService, AppProperties appProperties) {
+  public AuthController(
+      AuthService authService, EmailService mailService, AppProperties appProperties) {
     this.authService = authService;
     this.mailService = mailService;
     this.appProperties = appProperties;
@@ -54,7 +52,9 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public Result<TokenResponseVo> login(@RequestBody @Valid UserLoginDto userLoginDto, HttpServletRequest request,
+  public Result<TokenResponseVo> login(
+      @RequestBody @Valid UserLoginDto userLoginDto,
+      HttpServletRequest request,
       HttpServletResponse response) {
     final UserLoginCommand userLoginCommand = new UserLoginCommand();
     userLoginCommand.setEmail(userLoginDto.getEmail());
@@ -66,7 +66,10 @@ public class AuthController {
     userLoginCommand.setDeviceId(RequestUtils.getDeviceId(request));
     UserTokenResult userTokenDto = authService.login(userLoginCommand);
 
-    CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
+    CookieUtils.setCookie(
+        response,
+        "refreshToken",
+        userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
 
     final TokenResponseVo tokenResponseVo = new TokenResponseVo();
@@ -77,8 +80,7 @@ public class AuthController {
   }
 
   @PostMapping("/refresh")
-  public Result<TokenResponseVo> refresh(HttpServletRequest request,
-      HttpServletResponse response) {
+  public Result<TokenResponseVo> refresh(HttpServletRequest request, HttpServletResponse response) {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
 
     final String deviceId = RequestUtils.getDeviceId(request);
@@ -93,7 +95,10 @@ public class AuthController {
 
     final UserTokenResult userTokenDto = authService.refreshToken(refreshTokenRequestCommand);
 
-    CookieUtils.setCookie(response, "refreshToken", userTokenDto.getRefreshToken(),
+    CookieUtils.setCookie(
+        response,
+        "refreshToken",
+        userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
 
     final TokenResponseVo tokenResponseVo = new TokenResponseVo();
@@ -104,8 +109,7 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-  public Result<Void> logout(HttpServletRequest request,
-      HttpServletResponse response) {
+  public Result<Void> logout(HttpServletRequest request, HttpServletResponse response) {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
     final UserLogoutCommand userLogoutDto = new UserLogoutCommand();
     final String deviceId = RequestUtils.getDeviceId(request);

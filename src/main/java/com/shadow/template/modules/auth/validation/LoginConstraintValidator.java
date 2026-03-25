@@ -1,19 +1,17 @@
 package com.shadow.template.modules.auth.validation;
 
-import java.util.regex.Pattern;
-
 import com.shadow.template.modules.auth.constants.AuthRegex;
 import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.regex.Pattern;
 
-public class LoginConstraintValidator implements ConstraintValidator<LoginConstraint, UserLoginDto> {
+public class LoginConstraintValidator
+    implements ConstraintValidator<LoginConstraint, UserLoginDto> {
 
   private static final Pattern EMAIL_CODE_PATTERN = Pattern.compile(AuthRegex.EMAIL_CODE);
-  private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-      AuthRegex.PASSWORD);
+  private static final Pattern PASSWORD_PATTERN = Pattern.compile(AuthRegex.PASSWORD);
 
   @Override
   public boolean isValid(UserLoginDto dto, ConstraintValidatorContext context) {
@@ -53,7 +51,8 @@ public class LoginConstraintValidator implements ConstraintValidator<LoginConstr
 
   private boolean buildViolation(ConstraintValidatorContext context, String msg, String field) {
     context.disableDefaultConstraintViolation();
-    context.buildConstraintViolationWithTemplate(msg)
+    context
+        .buildConstraintViolationWithTemplate(msg)
         .addPropertyNode(field)
         .addConstraintViolation();
     return false;
