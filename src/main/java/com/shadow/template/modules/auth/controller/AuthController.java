@@ -7,17 +7,17 @@ import com.shadow.template.common.security.RateLimitService;
 import com.shadow.template.common.util.CookieUtils;
 import com.shadow.template.common.util.RequestUtils;
 import com.shadow.template.config.AppProperties;
-import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
-import com.shadow.template.modules.auth.dto.SendEmailDto;
-import com.shadow.template.modules.auth.dto.UserLoginCommand;
-import com.shadow.template.modules.auth.dto.UserLoginDto;
-import com.shadow.template.modules.auth.dto.UserLogoutCommand;
-import com.shadow.template.modules.auth.dto.UserRegisterDto;
-import com.shadow.template.modules.auth.dto.UserTokenResult;
+import com.shadow.template.modules.auth.command.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.command.UserLoginCommand;
+import com.shadow.template.modules.auth.command.UserLogoutCommand;
 import com.shadow.template.modules.auth.enums.EmailUsageEnum;
+import com.shadow.template.modules.auth.request.SendEmailRequest;
+import com.shadow.template.modules.auth.request.UserLoginRequest;
+import com.shadow.template.modules.auth.request.UserRegisterRequest;
+import com.shadow.template.modules.auth.response.TokenResponse;
+import com.shadow.template.modules.auth.result.UserTokenResult;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.EmailService;
-import com.shadow.template.modules.auth.vo.TokenResponseVo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -49,7 +49,7 @@ public class AuthController {
 
   @PostMapping("/email")
   public Result<Void> send(
-      @RequestBody @Valid SendEmailDto sendEmailDto, HttpServletRequest request) {
+      @RequestBody @Valid SendEmailRequest sendEmailDto, HttpServletRequest request) {
     final String ipAddress = RequestUtils.getIpAddress(request);
     rateLimitService.requireAllowed("auth:email:ip:" + ipAddress, 10, Duration.ofMinutes(1));
     rateLimitService.requireAllowed(
@@ -62,14 +62,14 @@ public class AuthController {
   }
 
   @PostMapping("/register")
-  public Result<Void> register(@RequestBody @Valid UserRegisterDto userRegisterDto) {
+  public Result<Void> register(@RequestBody @Valid UserRegisterRequest userRegisterDto) {
     authService.register(userRegisterDto);
     return Result.success();
   }
 
   @PostMapping("/login")
-  public Result<TokenResponseVo> login(
-      @RequestBody @Valid UserLoginDto userLoginDto,
+  public Result<TokenResponse> login(
+      @RequestBody @Valid UserLoginRequest userLoginDto,
       HttpServletRequest request,
       HttpServletResponse response) {
     final String ipAddress = RequestUtils.getIpAddress(request);
@@ -93,7 +93,7 @@ public class AuthController {
         userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
 
-    final TokenResponseVo tokenResponseVo = new TokenResponseVo();
+    final TokenResponse tokenResponseVo = new TokenResponse();
 
     tokenResponseVo.setToken(userTokenDto.getToken());
 
@@ -101,7 +101,7 @@ public class AuthController {
   }
 
   @PostMapping("/refresh")
-  public Result<TokenResponseVo> refresh(HttpServletRequest request, HttpServletResponse response) {
+  public Result<TokenResponse> refresh(HttpServletRequest request, HttpServletResponse response) {
     final String refreshToken = CookieUtils.getCookie(request, "refreshToken");
     final String deviceId = RequestUtils.getDeviceId(request);
 
@@ -131,7 +131,7 @@ public class AuthController {
         userTokenDto.getRefreshToken(),
         appProperties.getRefresh().getExpireDays());
 
-    final TokenResponseVo tokenResponseVo = new TokenResponseVo();
+    final TokenResponse tokenResponseVo = new TokenResponse();
 
     tokenResponseVo.setToken(userTokenDto.getToken());
 

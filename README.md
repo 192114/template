@@ -95,6 +95,8 @@ com.shadow.template
 │   │   ├── FieldErrorDetail.java
 │   │   ├── Result.java
 │   │   └── ResultCode.java
+│   ├── security              # 通用安全能力（限流等）
+│   │   └── RateLimitService.java
 │   └── util
 │       ├── CookieUtils.java
 │       ├── EmailCodeGenerator.java
@@ -104,16 +106,18 @@ com.shadow.template
 │   ├── auth
 │   │   ├── constants
 │   │   ├── controller
-│   │   ├── dto
+│   │   ├── request
+│   │   ├── response
+│   │   ├── command
+│   │   ├── result
 │   │   ├── entity
 │   │   ├── enums
 │   │   ├── mapper
 │   │   ├── service
 │   │   │   └── impl
-│   │   ├── validation
-│   │   └── vo
+│   │   └── validation
 │   └── user
-│       ├── dto
+│       ├── command
 │       ├── entity
 │       ├── enums
 │       ├── mapper
@@ -131,7 +135,7 @@ com.shadow.template
 | 包/目录 | 职责 |
 |--------|------|
 | `config` | 应用与基础设施配置：`*Properties`（绑定 yaml）、`*Config`（Bean/安全等）、`TimeMetaObjectHandler` 等 |
-| `common` | 跨模块通用：`exception`（BizException、GlobalExceptionHandler、HttpStatusMapper）、`result`（Result、ResultCode、FieldErrorDetail）、`filter`（TraceIdFilter）、`util` |
+| `common` | 跨模块通用：`exception`（BizException、GlobalExceptionHandler、HttpStatusMapper）、`result`（Result、ResultCode、FieldErrorDetail）、`filter`（TraceIdFilter）、`security`（RateLimitService）、`util` |
 | `modules` | 按业务域拆分的模块，每个子包为一个领域（如 auth、user） |
 | `security` | 与认证授权相关的过滤器、Token 提供者、401/403 处理器 |
 
@@ -143,13 +147,29 @@ com.shadow.template
 | `service` / `service.impl` | 业务逻辑；接口放 `service`，实现放 `impl` | `AuthService`, `AuthServiceImpl` |
 | `mapper` | MyBatis-Plus Mapper，对应表 | `UserSessionMapper` |
 | `entity` | 与数据库表一一对应的实体 | `UserSessionEntity` |
-| `dto` | 入参/内部传输对象（请求体、命令等） | `UserLoginDto`, `SendEmailDto`, `UserRegisterDto` |
-| `vo` | 仅用于响应的视图对象 | `TokenResponseVo` |
+| `request` | HTTP 入参对象（只在 Controller 边界使用） | `UserLoginRequest`, `SendEmailRequest`, `UserRegisterRequest` |
+| `response` | HTTP 出参对象（只返回给前端） | `TokenResponse` |
+| `command` | 应用层命令对象（服务写操作入参） | `UserLoginCommand`, `RefreshTokenRequestCommand`, `CreateSessionCommand` |
+| `result` | 应用层结果对象（服务层返回） | `UserTokenResult`, `RefreshTokenRotateResult` |
 | `enums` | 本模块枚举 | `LoginTypeEnum`, `EmailUsageEnum` |
 | `constants` | 本模块常量（如正则） | `AuthRegex` |
 | `validation` | 自定义校验注解与 Validator | `LoginConstraint`, `LoginConstraintValidator` |
 
-**约定**：入参/命令统一使用 `*Dto` 或 `*Command` 一种命名（本工程中两者并存，新代码可任选其一并保持模块内一致）；VO 仅用于 HTTP 响应体。
+### 目录与文件归档规则（当前规范）
+
+| 目录 | 作用 | 存放文件 |
+|------|------|----------|
+| `modules/*/request` | HTTP 请求入参 | `*Request` |
+| `modules/*/response` | HTTP 响应出参 | `*Response` |
+| `modules/*/command` | 业务动作命令 | `*Command` |
+| `modules/*/result` | 业务计算结果 | `*Result` |
+| `modules/*/entity` | 数据库映射对象 | `*Entity` |
+| `modules/*/mapper` | 数据访问接口 | `*Mapper` |
+| `modules/*/service` | 业务接口与实现 | `*Service`, `*ServiceImpl` |
+| `common/exception` | 全局异常与映射 | `BizException`, `GlobalExceptionHandler`, `HttpStatusMapper` |
+| `common/result` | 统一返回结构 | `Result`, `ResultCode`, `FieldErrorDetail` |
+| `common/security` | 跨模块安全组件 | `RateLimitService` |
+| `security` | Spring Security 认证授权基础组件 | `JwtAuthenticationFilter`, `JwtTokenProvider`, `RestAuthenticationEntryPoint` 等 |
 
 ---
 
@@ -158,6 +178,10 @@ com.shadow.template
 - **包名**：全小写，单词连写；模块用 `modules.<领域>`，如 `modules.auth`、`modules.user`。
 - **类名**：
   - Controller：`*Controller`，REST 使用 `@RestController`。
+  - Request：`*Request`，仅 Controller 入参。
+  - Response：`*Response`，仅 Controller 返回。
+  - Command：`*Command`，仅应用层命令对象。
+  - Result：`*Result`，仅应用层返回对象。
   - Service：接口 `*Service`，实现类 `*ServiceImpl`，放在 `service.impl`。
   - Mapper：`*Mapper`，继承 MyBatis-Plus `BaseMapper<*Entity>`。
   - 实体：`*Entity`，与表名对应（表名 snake_case，如 `user_session`）。

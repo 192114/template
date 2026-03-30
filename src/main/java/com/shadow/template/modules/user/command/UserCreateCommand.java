@@ -1,4 +1,4 @@
-package com.shadow.template.modules.user.dto;
+package com.shadow.template.modules.user.command;
 
 import lombok.Data;
 

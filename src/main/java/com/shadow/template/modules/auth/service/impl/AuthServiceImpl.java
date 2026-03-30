@@ -3,18 +3,18 @@ package com.shadow.template.modules.auth.service.impl;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
 import com.shadow.template.config.AppProperties;
-import com.shadow.template.modules.auth.dto.CreateSessionCommand;
-import com.shadow.template.modules.auth.dto.RefreshTokenRequestCommand;
-import com.shadow.template.modules.auth.dto.RefreshTokenRotateResult;
-import com.shadow.template.modules.auth.dto.UserLoginCommand;
-import com.shadow.template.modules.auth.dto.UserLogoutCommand;
-import com.shadow.template.modules.auth.dto.UserRegisterDto;
-import com.shadow.template.modules.auth.dto.UserTokenResult;
+import com.shadow.template.modules.auth.command.CreateSessionCommand;
+import com.shadow.template.modules.auth.command.RefreshTokenRequestCommand;
+import com.shadow.template.modules.auth.command.UserLoginCommand;
+import com.shadow.template.modules.auth.command.UserLogoutCommand;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
+import com.shadow.template.modules.auth.request.UserRegisterRequest;
+import com.shadow.template.modules.auth.result.RefreshTokenRotateResult;
+import com.shadow.template.modules.auth.result.UserTokenResult;
 import com.shadow.template.modules.auth.service.AuthService;
 import com.shadow.template.modules.auth.service.RefreshTokenService;
 import com.shadow.template.modules.auth.service.TokenBlacklistService;
-import com.shadow.template.modules.user.dto.UserCreateCommand;
+import com.shadow.template.modules.user.command.UserCreateCommand;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.enums.UserStatusEnum;
 import com.shadow.template.modules.user.service.UserService;
@@ -144,7 +144,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public void register(UserRegisterDto userRegisterDto) {
+  public void register(UserRegisterRequest userRegisterDto) {
     final String code =
         stringRedisTemplate.opsForValue().get("code:email:REGISTER:" + userRegisterDto.getEmail());
     if (code == null) {

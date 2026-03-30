@@ -1,20 +1,20 @@
 package com.shadow.template.modules.auth.validation;
 
 import com.shadow.template.modules.auth.constants.AuthRegex;
-import com.shadow.template.modules.auth.dto.UserLoginDto;
 import com.shadow.template.modules.auth.enums.LoginTypeEnum;
+import com.shadow.template.modules.auth.request.UserLoginRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
 
 public class LoginConstraintValidator
-    implements ConstraintValidator<LoginConstraint, UserLoginDto> {
+    implements ConstraintValidator<LoginConstraint, UserLoginRequest> {
 
   private static final Pattern EMAIL_CODE_PATTERN = Pattern.compile(AuthRegex.EMAIL_CODE);
   private static final Pattern PASSWORD_PATTERN = Pattern.compile(AuthRegex.PASSWORD);
 
   @Override
-  public boolean isValid(UserLoginDto dto, ConstraintValidatorContext context) {
+  public boolean isValid(UserLoginRequest dto, ConstraintValidatorContext context) {
     if (dto == null) {
       return true;
     }

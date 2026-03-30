@@ -1,4 +1,4 @@
-package com.shadow.template.modules.auth.dto;
+package com.shadow.template.modules.auth.command;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

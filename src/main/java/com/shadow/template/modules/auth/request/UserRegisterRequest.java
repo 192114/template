@@ -1,4 +1,4 @@
-package com.shadow.template.modules.auth.dto;
+package com.shadow.template.modules.auth.request;
 
 import com.shadow.template.modules.auth.constants.AuthRegex;
 import jakarta.validation.constraints.Email;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class UserRegisterDto {
+public class UserRegisterRequest {
   @NotBlank(message = "邮箱不能为空")
   @Email(message = "邮箱格式不正确")
   private String email;

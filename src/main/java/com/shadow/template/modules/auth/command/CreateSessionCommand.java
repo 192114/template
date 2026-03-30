@@ -1,4 +1,4 @@
-package com.shadow.template.modules.auth.dto;
+package com.shadow.template.modules.auth.command;
 
 import java.time.LocalDateTime;
 import lombok.Data;

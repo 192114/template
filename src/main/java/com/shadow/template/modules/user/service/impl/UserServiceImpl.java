@@ -3,7 +3,7 @@ package com.shadow.template.modules.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.shadow.template.common.exception.BizException;
 import com.shadow.template.common.result.ResultCode;
-import com.shadow.template.modules.user.dto.UserCreateCommand;
+import com.shadow.template.modules.user.command.UserCreateCommand;
 import com.shadow.template.modules.user.entity.UserAuthEntity;
 import com.shadow.template.modules.user.entity.UserProfileEntity;
 import com.shadow.template.modules.user.enums.UserStatusEnum;
